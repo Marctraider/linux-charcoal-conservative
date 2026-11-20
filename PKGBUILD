@@ -138,6 +138,7 @@ prepare() {
   require_config 'CONFIG_CPU_MITIGATIONS=n'
   require_config 'CONFIG_SCHED_CLASS_EXT=y'
   require_config 'CONFIG_X86_AMD_PSTATE=y'
+  require_config 'CONFIG_MZEN2=y'
   require_config 'CONFIG_LTO_CLANG_FULL=y'
   require_config 'CONFIG_POLLY_CLANG=y'
   require_config 'CONFIG_DEBUG_INFO_BTF=y'
