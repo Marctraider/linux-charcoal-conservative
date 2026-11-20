@@ -23,7 +23,7 @@ No third-party driver source is vendored or built. No unrelated scheduler patche
 
 ## Configuration workflow
 
-The build must start from the base config extracted from the pinned SteamOS/Neptune package. Run `scripts/merge-config.sh /path/to/linux-source /path/to/valve-base.config`; it applies `config-neptune` then `config-charcoal`, runs the target tree's `olddefconfig`, and fails if CPU mitigations are enabled, sched_ext is missing, or either in-tree XPAD driver is disabled. Review the complete config diff and all unmet/renamed options against Deck hardware before packaging.
+The build starts from the vendored Valve base config and applies Valve Neptune, Charcoal Neptune, and Charcoal layers in order. Run `scripts/merge-config.sh /path/to/linux-source`; it runs the target tree's `olddefconfig` and fails if CPU mitigations are enabled, sched_ext is missing, or either in-tree XPAD driver is disabled. The exact source tag is `7.3.1-valve3`; see `docs/SOURCE_PIN.md`. Review the complete config diff and all unmet/renamed options against Deck hardware before packaging.
 
 ## Safety notes
 
