@@ -24,32 +24,40 @@ fi
   echo "error: not a Linux source tree: $KERNEL_TREE" >&2
   exit 1
 }
-
-# Charcoal sets CONFIG_POLLY_CLANG; this Kconfig/Kbuild support patch is
-# required for that option to exist in the Valve kernel tree.
-if grep -Fq 'config POLLY_CLANG' "$KERNEL_TREE/init/Kconfig"; then
-  echo "Clang Polly Kconfig support already present."
-else
-  [[ -s "$POLLY_PATCH" ]] || { echo "error: Polly patch missing" >&2; exit 1; }
-  patch --directory "$KERNEL_TREE" --strip=1 --dry-run < "$POLLY_PATCH"
-  patch --directory "$KERNEL_TREE" --strip=1 < "$POLLY_PATCH"
-  grep -Fq 'config POLLY_CLANG' "$KERNEL_TREE/init/Kconfig"
-  echo "Applied Charcoal's Clang Polly Kconfig/Kbuild support."
-fi
-
 CPU_FILE="$KERNEL_TREE/drivers/gpu/drm/amd/pm/swsmu/smu11/vangogh_ppt.c"
 [[ -f "$CPU_FILE" ]] || { echo "error: Van Gogh SMU source file missing" >&2; exit 1; }
 
-if grep -Fq 'smu->cpu_default_soft_max_freq = 4200;' "$CPU_FILE"; then
-  echo "4.2 GHz CPU ceiling patch already applied."
-else
+need_polly=false
+if ! grep -Fq 'config POLLY_CLANG' "$KERNEL_TREE/init/Kconfig"; then
+  [[ -s "$POLLY_PATCH" ]] || { echo "error: Polly patch missing" >&2; exit 1; }
+  patch --directory "$KERNEL_TREE" --strip=1 --dry-run < "$POLLY_PATCH"
+  need_polly=true
+fi
+
+need_cpu=false
+if ! grep -Fq 'smu->cpu_default_soft_max_freq = 4200;' "$CPU_FILE"; then
   grep -Fq 'smu->cpu_default_soft_max_freq = 3500;' "$CPU_FILE" || {
     echo "error: expected Valve 3.5 GHz assignment not found; source mismatch." >&2
     exit 1
   }
   [[ -s "$CPU_PATCH" ]] || { echo "error: 4.2 GHz patch missing" >&2; exit 1; }
   patch --directory "$KERNEL_TREE" --strip=1 --dry-run < "$CPU_PATCH"
+  need_cpu=true
+fi
+
+# Both dry-runs succeeded before either patch is changed on disk.
+if [[ "$need_polly" == true ]]; then
+  patch --directory "$KERNEL_TREE" --strip=1 < "$POLLY_PATCH"
+  grep -Fq 'config POLLY_CLANG' "$KERNEL_TREE/init/Kconfig"
+  echo "Applied Charcoal's Clang Polly Kconfig/Kbuild support."
+else
+  echo "Clang Polly Kconfig support already present."
+fi
+
+if [[ "$need_cpu" == true ]]; then
   patch --directory "$KERNEL_TREE" --strip=1 < "$CPU_PATCH"
   grep -Fq 'smu->cpu_default_soft_max_freq = 4200;' "$CPU_FILE"
   echo "Applied 4.2 GHz CPU soft maximum patch."
+else
+  echo "4.2 GHz CPU ceiling patch already applied."
 fi
