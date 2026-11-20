@@ -9,7 +9,7 @@ set -euo pipefail
 
 KEYRING="${1:?usage: $0 TRUSTED_KEYRING.gpg [DESTINATION]}"
 DEST="${2:-$PWD/valve-source}"
-BASE="https://steamdeck-packages.steamos.cloud/archlinux-mirror/sources/jupiter-3.10"
+BASE="https://steamdeck-packages.steamos.cloud/archlinux-mirror/sources/jupiter-main"
 FILE="linux-neptune-73-7.3.1.valve3-1.src.tar.gz"
 
 [[ -s "$KEYRING" ]] || { echo "error: trusted keyring missing: $KEYRING" >&2; exit 1; }
