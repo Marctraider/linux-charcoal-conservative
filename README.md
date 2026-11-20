@@ -23,10 +23,10 @@ No third-party driver source is vendored or built. No unrelated scheduler patche
 
 ## Kernel packaging
 
-The repository now has a GitHub Actions full-build workflow at `.github/workflows/kernel-build.yml`. It builds the Valve kernel package, headers, and pinned LAVD package in an Arch build environment, validates the package contents/config, and uploads artifacts. The initial run is in progress; this is not yet a successful compile or a boot test.
+The repository now has a GitHub Actions full-build workflow at `.github/workflows/kernel-build.yml`. It builds the Valve kernel package, headers, and pinned LAVD package in an Arch build environment, validates the package contents/config, and uploads artifacts. The latest package-build workflow is running; static checks pass, but patch application, compilation, package validation, and boot testing are not yet confirmed.
 
 
-A root `PKGBUILD` based on Valve's Linux Neptune recipe emits a drop-in `linux-neptune-73` package at `pkgrel=2`, preserving Valve's package identity and `pkgbase` so the existing kernel preset naming remains compatible. It is unbuilt and untested; do not install it on a Deck until boot entry, initramfs, and rollback handling are validated. See `docs/BUILD.md`.
+A root `PKGBUILD` based on Valve's Linux Neptune recipe emits a drop-in `linux-neptune-73` package at `pkgrel=3`, preserving Valve's package identity and `pkgbase` so the existing kernel preset naming remains compatible. It is unbuilt and untested; do not install it on a Deck until boot entry, initramfs, and rollback handling are validated. See `docs/BUILD.md`.
 
 ## Configuration workflow
 
