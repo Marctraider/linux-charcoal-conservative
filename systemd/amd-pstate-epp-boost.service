@@ -1,0 +1,13 @@
+[Unit]
+Description=Enable AMD P-State per-core EPP boost
+Documentation=https://github.com/Marctraider/linux-charcoal-conservative/blob/main/docs/AMD_EPP_BOOST.md
+ConditionPathExists=/sys/module/amd_pstate/parameters/epp_boost
+After=systemd-modules-load.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/sh -c 'printf "1\\n" > /sys/module/amd_pstate/parameters/epp_boost'
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target
