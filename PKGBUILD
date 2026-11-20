@@ -53,7 +53,7 @@ options=(
   !debug
   !strip
 )
-_srcname=archlinux-linux-neptune
+_srcname=archlinux-linux-charcoal-conservative
 source=(
   "$_srcname::git+https://github.com/evlaV/linux-integration.git#tag=$_tag"
   config-valve-base
@@ -90,6 +90,10 @@ prepare() {
 
   # Apply the requested per-core EPP RFC first, while the source checkout is
   # still clean and exactly at the pinned Valve tag.
+  [[ "$(git rev-parse HEAD)" == "6fbfd992c8fee6877006b53cca0110bc9586fc00" ]] || {
+    echo "error: kernel source tag resolved to an unexpected commit" >&2
+    exit 1
+  }
   bash ../apply-amd-epp-rfc.sh "$PWD"
 
   echo "Applying Charcoal Polly support and Van Gogh frequency patches..."
