@@ -24,6 +24,7 @@ jobs:
         run: |
           test -s config-valve-base
           test -s config-valve-neptune
+          test -s patches/zen2-cpu-optimizations.patch
           test -s patches/clang-polly.patch
           test -s patches/vangogh_allow_higher_cpu_freq.patch
           grep -Fxq 'pkgbase=linux-neptune-73' PKGBUILD
