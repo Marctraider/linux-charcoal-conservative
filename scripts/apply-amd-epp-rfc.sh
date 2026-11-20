@@ -28,7 +28,7 @@ command -v git >/dev/null || { echo "error: git is required" >&2; exit 1; }
 TMP="$(mktemp -d)"
 trap 'rm -rf "$TMP"' EXIT
 
-for n in 2 3 4 5; do
+for n in 2 3 4; do
   patch_no=$((n - 1))
   file="$TMP/$patch_no.patch"
   fetched=false
@@ -54,6 +54,25 @@ for n in 2 3 4 5; do
   }
 done
 
+# The final patch only documents the parameter. Fetch it best-effort so a
+# documentation archive outage cannot block the functional driver series.
+DOC_FILE="$TMP/4.patch"
+DOC_FETCHED=false
+for base in "${BASES[@]}"; do
+  url="$base/$MID5-void@manifault.com/raw"
+  if curl --fail --location --retry 2 --retry-all-errors --output "$DOC_FILE.part" "$url"; then
+    mv "$DOC_FILE.part" "$DOC_FILE"
+    DOC_FETCHED=true
+    break
+  fi
+done
+if [[ "$DOC_FETCHED" == true ]]; then
+  grep -Fq "Subject: [RFC PATCH 4/4]" "$DOC_FILE"
+  grep -Fq "Message-ID: <$MID5-void@manifault.com>" "$DOC_FILE"
+else
+  echo "warning: unable to retrieve documentation-only RFC patch 4/4" >&2
+fi
+
 # Patches 1-3 contain the driver changes and are an atomic required unit.
 # Patch 4 is documentation-only; attempt it separately so a doc-context
 # conflict does not discard the functional driver changes.
@@ -65,14 +84,18 @@ if ! git -C "$TREE" -c user.name="Kernel Patch Import" \
   exit 1
 fi
 
-if git -C "$TREE" -c user.name="Kernel Patch Import" \
-     -c user.email="kernel-patch-import@localhost" \
-     am --keep-cr "$TMP/4.patch"; then
-  echo "Applied EPP driver patches and documentation patch."
+if [[ "$DOC_FETCHED" == true ]]; then
+  if git -C "$TREE" -c user.name="Kernel Patch Import" \
+       -c user.email="kernel-patch-import@localhost" \
+       am --keep-cr "$DOC_FILE"; then
+    echo "Applied EPP documentation patch."
+  else
+    git -C "$TREE" am --abort || true
+    echo "warning: driver patches applied, but documentation patch 4/4 did not apply." >&2
+    echo "Add the documentation manually after reviewing the target amd-pstate guide." >&2
+  fi
 else
-  git -C "$TREE" am --abort || true
-  echo "warning: EPP driver patches applied, but the documentation-only RFC patch did not apply." >&2
-  echo "Add the documentation manually after reviewing the target amd-pstate guide." >&2
+  echo "Driver patches applied; documentation patch 4/4 was skipped."
 fi
 
 echo "EPP driver series imported on top of $TAG. Review commits, compile, and hardware-test."
