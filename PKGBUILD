@@ -63,11 +63,13 @@ source=(
   "clang-polly.patch::patches/clang-polly.patch"
   "vangogh_allow_higher_cpu_freq.patch::patches/vangogh_allow_higher_cpu_freq.patch"
   "apply-amd-epp-rfc.sh::scripts/apply-amd-epp-rfc.sh"
+  "zen2-cpu-optimizations.patch::patches/zen2-cpu-optimizations.patch"
 )
 sha256sums=(
   '502f1d9beb5f5320a6efd4fc02f9119c7d40cfa7b7f46da5e897d931f7a07c47'
   'ecd8c76eb203493e67ba4052e7bc1fa46f51c91566f102172e7a18d7de2dd5eb'
   'b91c3ed65067704c8fdb8289d44ed18aa62f98f52c3b6d91fb72bc5b1606ae79'
+  'SKIP'
   'SKIP'
   'SKIP'
   'SKIP'
@@ -106,7 +108,11 @@ prepare() {
     echo "AMD per-core EPP RFC already applied."
   fi
 
-  echo "Applying Charcoal Polly support and Van Gogh frequency patches..."
+  echo "Applying Zen 2, Polly, and Van Gogh frequency patches..."
+  if ! grep -Fq 'config MZEN2' arch/x86/Kconfig.cpu; then
+    patch --dry-run -Np1 < ../zen2-cpu-optimizations.patch
+    patch -Np1 < ../zen2-cpu-optimizations.patch
+  fi
   if ! grep -Fq 'config POLLY_CLANG' init/Kconfig; then
     patch --dry-run -Np1 < ../clang-polly.patch
     patch -Np1 < ../clang-polly.patch
