@@ -31,6 +31,7 @@ jobs:
           grep -Fxq 'pkgbase=linux-neptune-73' PKGBUILD
           grep -Fxq '_tag=7.3.1-valve3' PKGBUILD
           grep -Fxq 'pkgrel=2' PKGBUILD
+          ! grep -Fq "'SKIP'" PKGBUILD
           grep -Fxq 'pkgver=1.1.3.linux.steamos.2' packages/scx-scheds/PKGBUILD
           grep -Fxq 'pkgrel=2' packages/scx-scheds/PKGBUILD
           grep -Fq '09f66735e5b52023a44001d019ca19204cb5760b' packages/scx-scheds/PKGBUILD
