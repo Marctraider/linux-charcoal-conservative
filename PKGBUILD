@@ -86,10 +86,6 @@ export KBUILD_BUILD_TIMESTAMP="$(date -Ru${SOURCE_DATE_EPOCH:+d @$SOURCE_DATE_EP
 prepare() {
   cd $_srcname
 
-  echo "Setting version..."
-  echo "-$pkgrel" > localversion.10-pkgrel
-  echo "${pkgbase#linux}" > localversion.20-pkgname
-
   # Apply the requested per-core EPP RFC first, while the source checkout is
   # still clean and exactly at the pinned Valve tag.
   expected_source="6fbfd992c8fee6877006b53cca0110bc9586fc00"
@@ -107,6 +103,11 @@ prepare() {
   else
     echo "AMD per-core EPP RFC already applied."
   fi
+
+  # Keep the Git checkout clean until the RFC importer has completed.
+  echo "Setting version..."
+  echo "-$pkgrel" > localversion.10-pkgrel
+  echo "${pkgbase#linux}" > localversion.20-pkgname
 
   echo "Applying Zen 2, Polly, and Van Gogh frequency patches..."
   if ! grep -Fq 'config MZEN2' arch/x86/Kconfig.cpu; then
