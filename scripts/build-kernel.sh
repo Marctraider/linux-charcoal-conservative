@@ -10,9 +10,9 @@ JOBS="${2:-$(getconf _NPROCESSORS_ONLN)}"
 TREE="$(realpath "$TREE")"
 EXPECTED_SOURCE="6fbfd992c8fee6877006b53cca0110bc9586fc00"
 
-command -v make >/dev/null || { echo "error: make is required" >&2; exit 1; }
-command -v clang >/dev/null || { echo "error: clang is required" >&2; exit 1; }
-command -v ld.lld >/dev/null || { echo "error: ld.lld is required" >&2; exit 1; }
+for tool in make clang ld.lld; do
+  command -v "$tool" >/dev/null || { echo "error: $tool is required" >&2; exit 1; }
+done
 [[ -d "$TREE/.git" ]] || { echo "error: expected a Git kernel checkout" >&2; exit 1; }
 [[ "$(git -C "$TREE" rev-parse '7.3.1-valve3^{commit}')" == "$EXPECTED_SOURCE" ]] || {
   echo "error: kernel tree does not contain the pinned Valve tag" >&2
@@ -34,12 +34,30 @@ fi
 "$ROOT/scripts/merge-config.sh" "$TREE"
 
 CONFIG="$TREE/.config"
-require_y() {
-  local symbol="$1"
-  grep -Eq "^CONFIG_${symbol}=y$" "$CONFIG" || {
-    echo "error: CONFIG_${symbol}=y was not retained by olddefconfig" >&2
+require_value() {
+  local symbol="$1" expected="$2" actual
+  actual="$(sed -n "s/^CONFIG_${symbol}=//p" "$CONFIG" | tail -n1)"
+  [[ "$actual" == "$expected" ]] || {
+    echo "error: CONFIG_${symbol} expected '$expected', got '${actual:-unset}'" >&2
     exit 1
   }
 }
+require_y() {
+  require_value "$1" y
+}
 
-require_y CPU_MITIGATIONS=false
+# Fail rather than silently losing requested Charcoal build options in olddefconfig.
+require_value CPU_MITIGATIONS n
+require_y SCHED_CLASS_EXT
+require_y X86_AMD_PSTATE
+require_y LTO_CLANG_FULL
+require_y POLLY_CLANG
+require_y BPF
+require_y DEBUG_INFO_BTF
+
+echo "Starting LLVM kernel build with $JOBS jobs..."
+make -C "$TREE" LLVM=1 -j"$JOBS" all
+make -C "$TREE" LLVM=1 -j"$JOBS" tools/bpf/bpftool/vmlinux.h feature-clang-bpf-co-re=1
+
+echo "Kernel and BPF tool build completed."
+echo "No package was installed and no bootloader or initramfs was modified."
