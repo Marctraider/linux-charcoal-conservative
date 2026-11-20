@@ -1,0 +1,59 @@
+name: Kernel package build
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/kernel-build.yml"
+      - "kernel-build.trigger"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: steamdeck-kernel-build
+  cancel-in-progress: false
+
+jobs:
+  build-packages:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 360
+    steps:
+      - uses: actions/checkout@v4
+      - name: Show runner disk and pull Arch build environment
+        run: |
+          df -h
+          docker pull archlinux:base-devel
+      - name: Build kernel, headers, and LAVD packages
+        env:
+          MAKEFLAGS: "-j2"
+        run: |
+          docker run --rm \
+            --volume "$GITHUB_WORKSPACE:/work" \
+            --workdir /work \
+            --env MAKEFLAGS="$MAKEFLAGS" \
+            archlinux:base-devel \
+            bash -euo pipefail -c '
+              pacman -Sy --noconfirm archlinux-keyring
+              pacman -Syu --noconfirm --needed \
+                bc binutils cpio gettext glibc libelf libgcc openssl pahole perl \
+                python rust rust-bindgen rust-src tar xxhash xz zlib zstd git \
+                openssh llvm clang lld polly curl jq cargo upx
+              useradd --create-home --uid 1001 builder
+              printf "builder ALL=(ALL:ALL) NOPASSWD: ALL\n" > /etc/sudoers.d/builder
+              chmod 0440 /etc/sudoers.d/builder
+              chown -R builder:builder /work
+              runuser -u builder -- env MAKEFLAGS="$MAKEFLAGS" bash scripts/build-packages.sh
+              echo "Built packages:"
+              find /work -maxdepth 3 -type f -name "*.pkg.tar.*" -print
+            '
+      - name: Upload kernel, headers, and LAVD packages
+        uses: actions/upload-artifact@v4
+        with:
+          name: steamdeck-kernel-packages
+          path: |
+            *.pkg.tar.*
+            packages/scx-scheds/*.pkg.tar.*
+          if-no-files-found: error
+          retention-days: 14
