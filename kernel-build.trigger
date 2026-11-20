@@ -1,2 +1,2 @@
 Trigger the full GitHub Actions kernel package build.
-Retry with runner disk cleanup, kernel config validation, and package-content checks.
+Retry full package build after fixing local makepkg source paths and incrementing kernel package release.
