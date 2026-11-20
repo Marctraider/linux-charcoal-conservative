@@ -67,8 +67,11 @@ for base in "${BASES[@]}"; do
   fi
 done
 if [[ "$DOC_FETCHED" == true ]]; then
-  grep -Fq "Subject: [RFC PATCH 4/4]" "$DOC_FILE"
-  grep -Fq "Message-ID: <$MID5-void@manifault.com>" "$DOC_FILE"
+  if ! grep -Fq "Subject: [RFC PATCH 4/4]" "$DOC_FILE" ||
+     ! grep -Fq "Message-ID: <$MID5-void@manifault.com>" "$DOC_FILE"; then
+    DOC_FETCHED=false
+    echo "warning: documentation RFC patch 4/4 failed identity checks" >&2
+  fi
 else
   echo "warning: unable to retrieve documentation-only RFC patch 4/4" >&2
 fi
