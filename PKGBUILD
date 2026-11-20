@@ -149,6 +149,9 @@ prepare() {
   require_config 'CONFIG_LTO_CLANG_FULL=y'
   require_config 'CONFIG_POLLY_CLANG=y'
   require_config 'CONFIG_DEBUG_INFO_BTF=y'
+  require_config 'CONFIG_BPF_SYSCALL=y'
+  require_config 'CONFIG_BPF_JIT=y'
+  require_config 'CONFIG_CGROUPS=y'
   require_config 'CONFIG_JOYSTICK_XPAD=m'
   require_config 'CONFIG_JOYSTICK_XBOX_GIP=m'
 
