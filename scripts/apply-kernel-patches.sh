@@ -77,3 +77,12 @@ if [[ "$need_cpu" == true ]]; then
 else
   echo "4.2 GHz CPU ceiling patch already applied."
 fi
+
+grep -Fq -- '-march=znver2' "$KERNEL_TREE/arch/x86/Makefile" || {
+  echo "error: Zen 2 Kbuild compiler flag is missing" >&2
+  exit 1
+}
+grep -Fq 'LLVMPolly.so' "$KERNEL_TREE/Makefile" || {
+  echo "error: Clang Polly Kbuild plugin flag is missing" >&2
+  exit 1
+}
