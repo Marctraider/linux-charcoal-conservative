@@ -1,0 +1,29 @@
+name: AMD EPP RFC patch preflight
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "patches/amd-pstate-epp-rfc/**"
+      - "scripts/apply-amd-epp-rfc.sh"
+      - "scripts/checkout-valve-kernel.sh"
+      - ".github/workflows/amd-epp-rfc-preflight.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: amd-epp-rfc-preflight
+  cancel-in-progress: true
+
+jobs:
+  patch-preflight:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check out the exact pinned Valve kernel source
+        run: scripts/checkout-valve-kernel.sh "$RUNNER_TEMP/linux-neptune-73"
+      - name: Dry-run and apply the complete RFC series (no compilation)
+        run: scripts/apply-amd-epp-rfc.sh "$RUNNER_TEMP/linux-neptune-73"
