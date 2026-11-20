@@ -33,7 +33,7 @@ The Charcoal config fragment's explicit disabling of the in-tree `JOYSTICK_XPAD`
 - Confirm the Clang Polly support and 4.2 GHz patches apply cleanly, then confirm all retained patches compile. `scripts/build-kernel.sh` orchestrates the EPP import, these patches, config merge, and LLVM build; it does not install the kernel.
 - Attempt the guarded EPP RFC series import, resolve any target-tree conflicts manually, then compile and hardware-test the result.
 - Build `packages/scx-scheds/PKGBUILD` and validate `scx_lavd` against the pinned kernel/BTF runtime. Retrieval helper: `bash scripts/fetch-scx-scheds.sh /path/to/trusted-steamos-keyring.gpg`. Keep the systemd service disabled until boot, suspend/resume, and recovery testing passes. See `docs/SCX_LAVD.md`.
-- Build and inspect the new root `PKGBUILD` output; validate package conflicts/replacement, initramfs preset generation, boot entry handling, and recovery before any installation. Implement safe package replacement/rollback only after these tests.
+- Build and inspect the root `PKGBUILD` output; validate the drop-in `linux-neptune-73` upgrade, initramfs preset generation, boot entry handling, and recovery before any installation. Implement safe package replacement/rollback only after these tests.
 - Build kernel and headers with the selected Clang/LLVM toolchain.
 - Test boot, suspend/resume, Wi-Fi, Bluetooth, audio, touchscreen, controls, storage, GPU, fan/thermal behavior, performance profiles, and recovery/rollback on actual Steam Deck hardware.
 
