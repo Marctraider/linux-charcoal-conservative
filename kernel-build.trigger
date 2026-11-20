@@ -6,3 +6,5 @@ Retry kernel build with lore.landau.one mirror fallback for the AMD EPP RFC patc
 Retry with explicit HTTP user agent for lore mirror access.
 
 Retry after correcting the EPP importer checksum and adding persistent source-download and ccache caches.
+
+Retry kernel build using locally vendored, Message-ID-verified AMD EPP RFC patches; no network dependency during prepare().
