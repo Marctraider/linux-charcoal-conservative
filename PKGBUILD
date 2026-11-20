@@ -4,7 +4,7 @@
 pkgbase=linux-neptune-73
 _tag=7.3.1-valve3
 pkgver=${_tag//-/.}
-pkgrel=2
+pkgrel=3
 pkgdesc='Steam Deck Linux kernel with Charcoal configuration'
 url="https://github.com/Marctraider/linux-charcoal-conservative"
 arch=(
@@ -60,11 +60,11 @@ source=(
   config-valve-neptune
   config-neptune
   config-charcoal
-  "clang-polly.patch::patches/clang-polly.patch"
-  "vangogh_allow_higher_cpu_freq.patch::patches/vangogh_allow_higher_cpu_freq.patch"
-  "apply-amd-epp-rfc.sh::scripts/apply-amd-epp-rfc.sh"
-  "zen2-cpu-optimizations.patch::patches/zen2-cpu-optimizations.patch"
-  "amd-pstate-epp-boost.service::systemd/amd-pstate-epp-boost.service"
+  "clang-polly.patch::file://$PWD/patches/clang-polly.patch"
+  "vangogh_allow_higher_cpu_freq.patch::file://$PWD/patches/vangogh_allow_higher_cpu_freq.patch"
+  "apply-amd-epp-rfc.sh::file://$PWD/scripts/apply-amd-epp-rfc.sh"
+  "zen2-cpu-optimizations.patch::file://$PWD/patches/zen2-cpu-optimizations.patch"
+  "amd-pstate-epp-boost.service::file://$PWD/systemd/amd-pstate-epp-boost.service"
 )
 sha256sums=(
   '502f1d9beb5f5320a6efd4fc02f9119c7d40cfa7b7f46da5e897d931f7a07c47'
