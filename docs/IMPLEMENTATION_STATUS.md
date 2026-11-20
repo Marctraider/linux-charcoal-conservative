@@ -4,7 +4,7 @@
 
 - SteamOS 3.10 is the intended target release; its Preview notes are available from Valve.
 - Linux 7.3 is the intended kernel series.
-- Source package pin identified: Valve `linux-neptune-73` 7.3.1 `valve3-1`, from the official `jupiter-3.10` source snapshot (archive dated 2026-11-16). See `docs/SOURCE_PIN.md`. The 3.2 GiB source archive and detached signature have not yet been downloaded or verified here; the extracted PKGBUILD and resolved Git commit still need recording. Do not substitute an arbitrary upstream 7.3 stable tag: Valve's tree/configuration is the compatibility baseline.
+- Source pin identified from the official `jupiter-main` package index: Valve `linux-neptune-73` 7.3.1 `valve3-1`, kernel tag `7.3.1-valve3`, resolved commit `6fbfd992c8fee6877006b53cca0110bc9586fc00`. The Valve base config and Neptune fragment are vendored in `config-valve-base` and `config-valve-neptune`. The 3.2 GiB source package archive has not yet been downloaded/signature-verified, and the full kernel tree has not been checked out or built. See `docs/SOURCE_PIN.md`.
 - The Charcoal configuration fragments in this repository are copied from V10lator/linux-charcoal. Their contents must be reconciled against the pinned 7.3 tree with `merge_config.sh` and `olddefconfig`.
 
 ## Driver policy
@@ -20,17 +20,17 @@ The Charcoal config fragment's explicit disabling of the in-tree `JOYSTICK_XPAD`
 ## Requested kernel changes
 
 - CPU mitigations: `CONFIG_CPU_MITIGATIONS=n` is retained from Charcoal.
-- Van Gogh CPU ceiling: `patches/vangogh_allow_higher_cpu_freq.patch` is copied from Charcoal and changes the SMU default soft maximum from 3500 to 4200 MHz. It must be checked/rebased against the exact Valve 7.3 source before use.
-- AMD per-core EPP boost: requested patch series is an RFC, not an established upstream Linux 7.3 feature. The July 2026 series targets AMD P-State active mode on MSR-based CPPC systems and exposes `epp_boost`; it must be reviewed/ported as a distinct patch and tested on Van Gogh. Do not claim it is upstream.
+- Van Gogh CPU ceiling: `patches/vangogh_allow_higher_cpu_freq.patch` changes the exact 3500 MHz assignment found in the pinned Valve `vangogh_ppt.c` to 4200 MHz. `scripts/apply-kernel-patches.sh` checks the source tag ancestry and patch context before applying. It has not yet been applied to a full local tree or compiled.
+- AMD per-core EPP boost: requested patch series is an RFC, not an established upstream Linux 7.3 feature. `scripts/apply-amd-epp-rfc.sh` fetches the four immutable RFC messages and attempts to apply them to a clean exact Valve tag checkout, aborting if any patch fails. The RFC base commit diverges from the Valve tag, so applicability is not assumed. No EPP patch has yet been applied or compiled.
 - LAVD: `CONFIG_SCHED_CLASS_EXT=y` enables the kernel sched_ext interface. It does not itself install or activate LAVD. LAVD is a sched_ext BPF scheduler/userspace component and must be packaged separately, version-pinned, and integrated with the Deck's service/session management.
 - Performance mode: installer/service integration still needs to be implemented and tested. Do not force a performance profile until the supported SteamOS profile interface and restore behavior are confirmed.
 
 ## Not yet done / not yet validated
 
-- If desired, download and verify the Valve source package archive with `bash scripts/fetch-valve-source.sh /path/to/trusted-steamos-keyring.gpg`. The source tag is already identified from Valve's PKGBUILD; use `scripts/checkout-valve-kernel.sh` to check it out and record its resolved Git commit. The current official package index is `jupiter-main`.
+- Download and verify the Valve source package archive with `bash scripts/fetch-valve-source.sh /path/to/trusted-steamos-keyring.gpg` if the signed package recipe artifact is needed. Then check out the pinned kernel tree with `scripts/checkout-valve-kernel.sh`; the helper verifies the resolved commit SHA. The current official package index is `jupiter-main`.
 - Reconcile all four config layers against the pinned kernel and review every unknown/removed Kconfig symbol. `scripts/merge-config.sh` now follows Valve's layering order (Valve base -> Valve Neptune -> Charcoal Neptune -> Charcoal). `config-charcoal` explicitly enables `CONFIG_SCHED_CLASS_EXT=y` and `CONFIG_JOYSTICK_XPAD=m`.
 - Confirm all retained patches apply cleanly and compile.
-- Port and validate EPP boost patch series.
+- Attempt the guarded EPP RFC series import, resolve any target-tree conflicts manually, then compile and hardware-test the result.
 - Validate the SteamOS `scx-scheds` 1.1.3 `linux.steamos.2-2` source candidate against Linux 7.3.1, then package `scx_lavd` and its userspace dependencies. Retrieval helper: `bash scripts/fetch-scx-scheds.sh /path/to/trusted-steamos-keyring.gpg`. See `docs/SCX_LAVD.md`.
 - Implement safe package replacement/rollback and initramfs regeneration.
 - Build kernel and headers with the selected Clang/LLVM toolchain.
