@@ -56,8 +56,11 @@ require_y BPF
 require_y DEBUG_INFO_BTF
 
 echo "Starting LLVM kernel build with $JOBS jobs..."
-make -C "$TREE" LLVM=1 -j"$JOBS" all
-make -C "$TREE" LLVM=1 -j"$JOBS" tools/bpf/bpftool/vmlinux.h feature-clang-bpf-co-re=1
+(
+  cd "$TREE"
+  make LLVM=1 -j"$JOBS" all
+  make -C tools/bpf/bpftool vmlinux.h feature-clang-bpf-co-re=1
+)
 
 echo "Kernel and BPF tool build completed."
 echo "No package was installed and no bootloader or initramfs was modified."
