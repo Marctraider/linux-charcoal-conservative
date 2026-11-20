@@ -36,12 +36,12 @@ gpgv --keyring "$KEYRING" "$FILE.sig" "$FILE"
 echo "Recording source archive SHA-256..."
 sha256sum "$FILE" | tee "$FILE.sha256"
 
-if [[ ! -d linux-neptune-73 ]]; then
+if [[ ! -d extracted ]] || [[ -z "$(find extracted -mindepth 1 -maxdepth 1 -print -quit)" ]]; then
   mkdir -p extracted
   tar --extract --gzip --file "$FILE" --directory extracted
   echo "Archive extracted under: $DEST/extracted"
 else
-  echo "Existing linux-neptune-73 directory found; not extracting over it."
+  echo "Non-empty extracted directory found; not extracting over it."
 fi
 
 echo
