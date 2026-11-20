@@ -20,6 +20,15 @@ jobs:
     timeout-minutes: 360
     steps:
       - uses: actions/checkout@v4
+      - name: Restore kernel source and compiler caches
+        uses: actions/cache@v4
+        with:
+          path: |
+            .cache/makepkg-sources
+            .cache/ccache
+          key: kernel-build-${{ runner.os }}-${{ hashFiles('PKGBUILD', 'config-*', 'patches/**', 'scripts/apply-amd-epp-rfc.sh') }}
+          restore-keys: |
+            kernel-build-${{ runner.os }}-
       - name: Show runner disk and pull Arch build environment
         run: |
           # Reclaim preinstalled SDK space on the standard 14 GB runner.
@@ -30,6 +39,7 @@ jobs:
           sudo apt-get clean
           docker system prune --all --force
           df -h
+          mkdir -p .cache/makepkg-sources .cache/ccache
           docker pull archlinux:base-devel
       - name: Build kernel, headers, and LAVD packages
         env:
@@ -45,12 +55,18 @@ jobs:
               pacman -Syu --noconfirm --needed \
                 bc binutils cpio gettext glibc libelf libgcc openssl pahole perl \
                 python rust rust-bindgen rust-src tar xxhash xz zlib zstd git \
-                openssh llvm clang lld polly curl jq cargo upx
+                openssh llvm clang lld polly curl jq cargo upx ccache
+              printf '\nSRCDEST=/work/.cache/makepkg-sources\n' >> /etc/makepkg.conf
+              export CCACHE_DIR=/work/.cache/ccache
+              export CC="ccache clang"
+              export CXX="ccache clang++"
+              ccache --max-size=5G
               useradd --create-home --uid 1001 builder
               printf "builder ALL=(ALL:ALL) NOPASSWD: ALL\n" > /etc/sudoers.d/builder
               chmod 0440 /etc/sudoers.d/builder
               chown -R builder:builder /work
-              runuser -u builder -- env MAKEFLAGS="$MAKEFLAGS" bash scripts/build-packages.sh
+              runuser -u builder -- env MAKEFLAGS="$MAKEFLAGS" CCACHE_DIR="$CCACHE_DIR" CC="$CC" CXX="$CXX" bash scripts/build-packages.sh
+              ccache --show-stats
               shopt -s nullglob
               kernel=(/work/linux-neptune-73-*.pkg.tar.*)
               headers=(/work/linux-neptune-73-headers-*.pkg.tar.*)
