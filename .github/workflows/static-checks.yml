@@ -38,7 +38,7 @@ jobs:
           grep -Eq '^CONFIG_JOYSTICK_XPAD=m$' config-charcoal
           grep -Eq '^CONFIG_JOYSTICK_XBOX_GIP=m$' config-neptune
           for f in config-valve-base config-valve-neptune config-neptune config-charcoal; do
-            ! grep -Eiq 'CONFIG_(RYZEN_SMU|XONE|XPADNEO|XPAD_NOONE)' "$f"
+            ! grep -Eiq 'RYZEN_SMU|XONE|XPADNEO|XPAD_NOONE' "$f"
             ! grep -Eq '^CONFIG_JOYSTICK_XPAD=n$' "$f"
             ! grep -Eq '^CONFIG_JOYSTICK_XBOX_GIP=n$' "$f"
           done
