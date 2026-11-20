@@ -27,11 +27,11 @@ The Charcoal config fragment's explicit disabling of the in-tree `JOYSTICK_XPAD`
 
 ## Not yet done / not yet validated
 
-- Download and verify the pinned Valve source archive, inspect its PKGBUILD, record its resolved kernel Git commit and identify the shipped base config.
-- Reconcile both config fragments against the pinned kernel and review every unknown/removed Kconfig symbol.
+- Download and verify the pinned Valve source archive with `bash scripts/fetch-valve-source.sh /path/to/trusted-steamos-keyring.gpg`, inspect its PKGBUILD, record its resolved kernel Git commit and identify the shipped base config. The helper verifies the detached signature before extraction and records the archive SHA-256.
+- Reconcile both config fragments against the pinned kernel and review every unknown/removed Kconfig symbol. `config-charcoal` now explicitly enables `CONFIG_SCHED_CLASS_EXT=y` and `CONFIG_JOYSTICK_XPAD=m`.
 - Confirm all retained patches apply cleanly and compile.
 - Port and validate EPP boost patch series.
-- Validate the SteamOS `scx-scheds` 1.1.3 `linux.steamos.2-2` source candidate against Linux 7.3.1, then package `scx_lavd` and its userspace dependencies. Retrieval helper: `scripts/fetch-scx-scheds.sh`. See `docs/SCX_LAVD.md`.
+- Validate the SteamOS `scx-scheds` 1.1.3 `linux.steamos.2-2` source candidate against Linux 7.3.1, then package `scx_lavd` and its userspace dependencies. Retrieval helper: `bash scripts/fetch-scx-scheds.sh /path/to/trusted-steamos-keyring.gpg`. See `docs/SCX_LAVD.md`.
 - Implement safe package replacement/rollback and initramfs regeneration.
 - Build kernel and headers with the selected Clang/LLVM toolchain.
 - Test boot, suspend/resume, Wi-Fi, Bluetooth, audio, touchscreen, controls, storage, GPU, fan/thermal behavior, performance profiles, and recovery/rollback on actual Steam Deck hardware.
