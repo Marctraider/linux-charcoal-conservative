@@ -1,0 +1,24 @@
+name: Static checks
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  shell-and-config-policy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check shell syntax
+        run: |
+          bash -n scripts/merge-config.sh
+          bash -n scripts/fetch-valve-source.sh
+          bash -n scripts/fetch-scx-scheds.sh
+      - name: Check requested config policy
+        run: |
+          grep -Eq '^CONFIG_CPU_MITIGATIONS=n$' config-charcoal
+          grep -Eq '^CONFIG_SCHED_CLASS_EXT=y$' config-charcoal
+          ! grep -Eq '^CONFIG_JOYSTICK_XPAD=n$' config-charcoal
+          ! grep -Eq '^CONFIG_JOYSTICK_XBOX_GIP=n$' config-charcoal
+          grep -Eq '^CONFIG_JOYSTICK_XBOX_GIP=m$' config-neptune
+          ! grep -Eiq 'ryzen_smu|xone|xpadneo|xpad-noone' config-charcoal config-neptune
