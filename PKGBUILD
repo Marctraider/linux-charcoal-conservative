@@ -90,15 +90,35 @@ prepare() {
 
   # Apply the requested per-core EPP RFC first, while the source checkout is
   # still clean and exactly at the pinned Valve tag.
-  [[ "$(git rev-parse HEAD)" == "6fbfd992c8fee6877006b53cca0110bc9586fc00" ]] || {
+  expected_source="6fbfd992c8fee6877006b53cca0110bc9586fc00"
+  [[ "$(git rev-parse '7.3.1-valve3^{commit}')" == "$expected_source" ]] || {
     echo "error: kernel source tag resolved to an unexpected commit" >&2
     exit 1
   }
-  bash ../apply-amd-epp-rfc.sh "$PWD"
+  git merge-base --is-ancestor "$expected_source" HEAD || {
+    echo "error: kernel tree is not based on the pinned Valve source commit" >&2
+    exit 1
+  }
+
+  if ! grep -Fq 'module_param_cb(epp_boost' drivers/cpufreq/amd-pstate.c; then
+    bash ../apply-amd-epp-rfc.sh "$PWD"
+  else
+    echo "AMD per-core EPP RFC already applied."
+  fi
 
   echo "Applying Charcoal Polly support and Van Gogh frequency patches..."
-  patch -Np1 < ../clang-polly.patch
-  patch -Np1 < ../vangogh_allow_higher_cpu_freq.patch
+  if ! grep -Fq 'config POLLY_CLANG' init/Kconfig; then
+    patch --dry-run -Np1 < ../clang-polly.patch
+    patch -Np1 < ../clang-polly.patch
+  fi
+  if ! grep -Fq 'smu->cpu_default_soft_max_freq = 4200;' drivers/gpu/drm/amd/pm/swsmu/smu11/vangogh_ppt.c; then
+    grep -Fq 'smu->cpu_default_soft_max_freq = 3500;' drivers/gpu/drm/amd/pm/swsmu/smu11/vangogh_ppt.c || {
+      echo "error: expected Valve 3500 MHz Van Gogh ceiling not found" >&2
+      exit 1
+    }
+    patch --dry-run -Np1 < ../vangogh_allow_higher_cpu_freq.patch
+    patch -Np1 < ../vangogh_allow_higher_cpu_freq.patch
+  fi
 
   echo "Merging Valve and Charcoal configurations..."
   cp ../config-valve-base .config
