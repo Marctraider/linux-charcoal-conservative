@@ -44,6 +44,28 @@ else
   echo "Non-empty extracted directory found; not extracting over it."
 fi
 
+PKGBUILD_PATH="$(find "$DEST/extracted" -type f -name PKGBUILD -print -quit)"
+[[ -n "$PKGBUILD_PATH" ]] || {
+  echo "error: source archive contains no PKGBUILD" >&2
+  exit 1
+}
+grep -Fq '_tag=7.3.1-valve3' "$PKGBUILD_PATH" || {
+  echo "error: PKGBUILD does not pin the expected 7.3.1-valve3 source tag" >&2
+  exit 1
+}
+BASE_CONFIG="$(find "$DEST/extracted" -type f -name config.x86_64 -print -quit)"
+NEPTUNE_CONFIG="$(find "$DEST/extracted" -type f -name config-neptune -print -quit)"
+[[ -n "$BASE_CONFIG" && -n "$NEPTUNE_CONFIG" ]] || {
+  echo "error: expected Valve base config files are missing" >&2
+  exit 1
+}
+printf '%s  %s\\n' \
+  "ecd8c76eb203493e67ba4052e7bc1fa46f51c91566f102172e7a18d7de2dd5eb" "$BASE_CONFIG" \
+  "b91c3ed65067704c8fdb8289d44ed18aa62f98f52c3b6d91fb72bc5b1606ae79" "$NEPTUNE_CONFIG" \
+  | sha256sum --check --status
+
+echo "Verified PKGBUILD tag and Valve config SHA-256 values."
+
 echo
 echo "Next: inspect the extracted PKGBUILD and embedded bare Git repository."
 echo "Record the package's source revision and shipped base config before building."
