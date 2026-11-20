@@ -44,7 +44,7 @@ The `jupiter-main` package index contains the Valve `linux-neptune-73` 7.3.1 pac
 Do not publish a kernel package or run an installer until all of the following are true:
 
 1. The detached signature is valid.
-2. The extracted PKGBUILD agrees with the vendored recipe, and the resolved `7.3.1-valve3` commit SHA is recorded.
+2. The extracted Valve PKGBUILD agrees with the source tag and config pin, and the resolved `7.3.1-valve3` commit SHA is recorded.
 3. The vendored Valve base config and Neptune fragment match the PKGBUILD's SHA-256 values.
 4. Valve base -> Valve Neptune -> Charcoal Neptune -> Charcoal are merged in that order and `olddefconfig` is run with the target tree.
 5. The 4.2 GHz and EPP patches are checked against this exact source.
