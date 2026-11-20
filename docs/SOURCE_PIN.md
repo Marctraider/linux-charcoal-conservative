@@ -46,8 +46,8 @@ Do not publish a kernel package or run an installer until all of the following a
 1. The detached signature is valid.
 2. The extracted PKGBUILD agrees with the vendored recipe, and the resolved `7.3.1-valve3` commit SHA is recorded.
 3. The vendored Valve base config and Neptune fragment match the PKGBUILD's SHA-256 values.
-4. `config-neptune` and `config-charcoal` are merged into that base config and `olddefconfig` is run with the target tree.
+4. Valve base -> Valve Neptune -> Charcoal Neptune -> Charcoal are merged in that order and `olddefconfig` is run with the target tree.
 5. The 4.2 GHz and EPP patches are checked against this exact source.
 6. The kernel, modules, headers, initramfs integration, and rollback path pass validation.
 
-The repository currently contains reference config fragments and the initial 4.2 GHz patch only. This source pin does not imply that the kernel build or installer is complete.
+The repository contains the pinned Valve config layers, Charcoal config layers, and the requested 4.2 GHz patch helper. This source pin does not imply that the kernel build or installer is complete.
