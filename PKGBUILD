@@ -1,11 +1,11 @@
 # Maintainer: John Schoenick <johns@valvesoftware.com>
 # Maintainer: Jan Alexander Steffens (heftig) <heftig@archlinux.org>
 
-pkgbase=linux-charcoal-conservative
+pkgbase=linux-neptune-73
 _tag=7.3.1-valve3
 pkgver=${_tag//-/.}
-pkgrel=1
-pkgdesc='Linux'
+pkgrel=2
+pkgdesc='Steam Deck Linux kernel with Charcoal configuration'
 url="https://github.com/Marctraider/linux-charcoal-conservative"
 arch=(
   x86_64
@@ -172,15 +172,10 @@ _package() {
     NTSYNC-MODULE
     VIRTUALBOX-GUEST-MODULES
     WIREGUARD-MODULE
-    "linux-neptune-73=$pkgver"
   )
   replaces=(
     virtualbox-guest-modules-arch
     wireguard-arch
-    linux-neptune-73
-  )
-  conflicts=(
-    linux-neptune-73
   )
 
   cd $_srcname
