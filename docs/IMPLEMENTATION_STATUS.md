@@ -31,7 +31,7 @@ The Charcoal config fragment's explicit disabling of the in-tree `JOYSTICK_XPAD`
 - Reconcile both config fragments against the pinned kernel and review every unknown/removed Kconfig symbol.
 - Confirm all retained patches apply cleanly and compile.
 - Port and validate EPP boost patch series.
-- Pin and package a compatible scx_lavd release and userspace dependencies.
+- Validate the SteamOS `scx-scheds` 1.1.1 `linux.steamos-4` source candidate against Linux 7.3.1, then package `scx_lavd` and its userspace dependencies. See `docs/SCX_LAVD.md`.
 - Implement safe package replacement/rollback and initramfs regeneration.
 - Build kernel and headers with the selected Clang/LLVM toolchain.
 - Test boot, suspend/resume, Wi-Fi, Bluetooth, audio, touchscreen, controls, storage, GPU, fan/thermal behavior, performance profiles, and recovery/rollback on actual Steam Deck hardware.
