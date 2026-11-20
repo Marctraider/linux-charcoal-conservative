@@ -33,7 +33,7 @@ for n in 2 3 4; do
   file="$TMP/$patch_no.patch"
   fetched=false
   for base in "${BASES[@]}"; do
-    url="$base/$MID$n-void@manifault.com/raw"
+    url="$base/${MID}${n}-void@manifault.com/raw"
     if curl --fail --location --retry 2 --retry-all-errors --output "$file.part" "$url"; then
       mv "$file.part" "$file"
       fetched=true
@@ -48,7 +48,7 @@ for n in 2 3 4; do
     echo "error: unexpected message returned for RFC patch $patch_no/4" >&2
     exit 1
   }
-  grep -Fq "Message-ID: <$MID$n-void@manifault.com>" "$file" || {
+  grep -Fq "Message-ID: <${MID}${n}-void@manifault.com>" "$file" || {
     echo "error: Message-ID mismatch for RFC patch $patch_no/4" >&2
     exit 1
   }
@@ -59,7 +59,7 @@ done
 DOC_FILE="$TMP/4.patch"
 DOC_FETCHED=false
 for base in "${BASES[@]}"; do
-  url="$base/$MID5-void@manifault.com/raw"
+  url="$base/${MID}5-void@manifault.com/raw"
   if curl --fail --location --retry 2 --retry-all-errors --output "$DOC_FILE.part" "$url"; then
     mv "$DOC_FILE.part" "$DOC_FILE"
     DOC_FETCHED=true
@@ -68,7 +68,7 @@ for base in "${BASES[@]}"; do
 done
 if [[ "$DOC_FETCHED" == true ]]; then
   if ! grep -Fq "Subject: [RFC PATCH 4/4]" "$DOC_FILE" ||
-     ! grep -Fq "Message-ID: <$MID5-void@manifault.com>" "$DOC_FILE"; then
+     ! grep -Fq "Message-ID: <${MID}5-void@manifault.com>" "$DOC_FILE"; then
     DOC_FETCHED=false
     echo "warning: documentation RFC patch 4/4 failed identity checks" >&2
   fi
