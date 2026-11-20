@@ -1,6 +1,12 @@
 # No CPU mitigations
 CONFIG_CPU_MITIGATIONS=n
 
+# sched_ext interface for the requested scx_lavd userspace scheduler
+CONFIG_SCHED_CLASS_EXT=y
+
+# Keep the in-tree Xbox controller driver available; external replacements are excluded
+CONFIG_JOYSTICK_XPAD=m
+
 # Enable expert adjustments
 CONFIG_EXPERT=y
 
