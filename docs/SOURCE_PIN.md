@@ -20,13 +20,14 @@ The Valve `linux-neptune-73/PKGBUILD` in the automatically updated `evlaV/jupite
 
 - `_tag=7.3.1-valve3`
 - Kernel source: `https://github.com/evlav/linux-integration.git#tag=7.3.1-valve3` (public mirror replacing the private Valve URL)
+- Resolved tag commit: `6fbfd992c8fee6877006b53cca0110bc9586fc00` (GitHub API tag resolution; the checkout helper verifies this exact SHA)
 - Valve base config: `config.x86_64`, SHA-256 `ecd8c76eb203493e67ba4052e7bc1fa46f51c91566f102172e7a18d7de2dd5eb`
 - Valve Neptune fragment: `config-neptune`, SHA-256 `b91c3ed65067704c8fdb8289d44ed18aa62f98f52c3b6d91fb72bc5b1606ae79`
 - PKGBUILD's config layering: copy `config.x86_64`, merge `config-neptune`, then `make olddefconfig`.
 
 The exact config files are vendored as `config-valve-base` and `config-valve-neptune`; their GitHub source blob SHAs are recorded in repository history. The build helper then applies Charcoal's `config-neptune` and `config-charcoal` after Valve's two layers.
 
-Use `bash scripts/checkout-valve-kernel.sh /path/to/linux-neptune-73` to check out the tag and record its resolved commit SHA in `SOURCE_COMMIT`. The mirror is unofficial; compare its source against the Valve package's published tag and do not treat the mirror's repository history as an official Valve signature.
+Use `bash scripts/checkout-valve-kernel.sh /path/to/linux-neptune-73` to check out the tag, verify exact commit `6fbfd992c8fee6877006b53cca0110bc9586fc00`, and record the SHA in `SOURCE_COMMIT`. The mirror is unofficial; compare its source against the Valve package's published tag and do not treat the mirror's repository history as an official Valve signature.
 
 ## Retrieval and verification
 
