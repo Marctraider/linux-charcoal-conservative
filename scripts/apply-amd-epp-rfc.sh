@@ -35,14 +35,29 @@ for n in 1 2 3 4; do
   }
 done
 
-if ! git -C "$TREE" -c user.name="Kernel Patch Import" \
-     -c user.email="kernel-patch-import@localhost" \
-     am --keep-cr "$PATCH_DIR/1.patch" "$PATCH_DIR/2.patch" \
-        "$PATCH_DIR/3.patch" "$PATCH_DIR/4.patch"; then
+# Valve's pinned tag already contains RFC patch 1's kernel-doc additions.
+# Confirm all five fields are documented before omitting that redundant patch.
+HEADER="$TREE/drivers/cpufreq/amd-pstate.h"
+for marker in \
+  '@val: Raw 64-bit value for atomic access via READ_ONCE()/WRITE_ONCE()' \
+  '@raw_epp: Whether the last EPP write was a raw numeric value rather than a' \
+  '@current_profile: Currently selected platform profile option' \
+  '@ppdev: Device registered with the platform profile handler' \
+  '@profile_name: Name under which @ppdev is registered'; do
+  grep -Fq "$marker" "$HEADER" || {
+    echo "error: patch 1 is not already represented in Valve's header: $marker" >&2
+    exit 1
+  }
+done
+
+git -C "$TREE" config user.name "Kernel Patch Import"
+git -C "$TREE" config user.email "kernel-patch-import@localhost"
+if ! git -C "$TREE" am --keep-cr "$PATCH_DIR/2.patch" \
+     "$PATCH_DIR/3.patch" "$PATCH_DIR/4.patch"; then
   git -C "$TREE" am --abort || true
-  echo "error: AMD EPP RFC series did not apply; tree restored to the tag." >&2
+  echo "error: AMD EPP RFC patches 2-4 did not apply; tree restored to the tag." >&2
   exit 1
 fi
 
-echo "AMD per-core EPP RFC series imported on top of $TAG."
+echo "AMD per-core EPP RFC patches 2-4 imported on top of $TAG; patch 1 was already present in Valve's tag."
 echo "Review the four commits, compile, and hardware-test before enabling epp_boost."
