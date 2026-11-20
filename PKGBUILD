@@ -73,7 +73,7 @@ sha256sums=(
   '3ce95eca326d499d6fbe7cca5bc0f19733ea5bdca4c1c5a758bd08e9bb73bbfd'
   '71e5926efc30833a6fd756b9358529ac695fa688ae71cd74e31dd274ae1ecf05'
   '375c8e17daf9e60bc6c211dd73f0c67ec241bd40a83d812a08eeb42aab6128d9'
-  'ed36bcab65f959200c91991e3337fd716883ef0915fbec65d6252f09fd72c666'
+  '12a94c58066d251c3c135f2d0e48238781f858c2d94474dd301f99f2cbbb552b'
   'd0fc67545dcf738fa69853c43ceab858bc2f87cf5910ae1755c7092679ee3562'
 )
 
@@ -110,7 +110,7 @@ prepare() {
   echo "${pkgbase#linux}" > localversion.20-pkgname
 
   echo "Applying Zen 2, Polly, and Van Gogh frequency patches..."
-  if ! grep -Fq 'config MZEN2' arch/x86/Kconfig.cpu; then
+  if ! grep -Fq -- '-march=znver2' arch/x86/Makefile; then
     patch --dry-run -Np1 < ../zen2-cpu-optimizations.patch
     patch -Np1 < ../zen2-cpu-optimizations.patch
   fi
@@ -153,7 +153,6 @@ prepare() {
   require_config 'CONFIG_CPU_MITIGATIONS=n'
   require_config 'CONFIG_SCHED_CLASS_EXT=y'
   require_config 'CONFIG_X86_AMD_PSTATE=y'
-  require_config 'CONFIG_MZEN2=y'
   require_config 'CONFIG_LTO_CLANG_FULL=y'
   require_config 'CONFIG_POLLY_CLANG=y'
   require_config 'CONFIG_DEBUG_INFO_BTF=y'
