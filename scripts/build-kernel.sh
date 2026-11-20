@@ -59,7 +59,7 @@ echo "Starting LLVM kernel build with $JOBS jobs..."
 (
   cd "$TREE"
   make LLVM=1 -j"$JOBS" all
-  make -C tools/bpf/bpftool vmlinux.h feature-clang-bpf-co-re=1
+  make LLVM=1 -C tools/bpf/bpftool vmlinux.h feature-clang-bpf-co-re=1
 )
 
 echo "Kernel and BPF tool build completed."
