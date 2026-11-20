@@ -34,6 +34,16 @@ The build helper then:
 
 The build stops rather than silently dropping a requested config option. If the RFC cannot be applied to this diverged Valve source, that conflict must be resolved and reviewed manually; do not force-apply it.
 
+## Package build
+
+The root `PKGBUILD` follows Valve's kernel package layout, emits the kernel and headers packages, and declares a conflict/replacement with `linux-neptune-73`. On an Arch/SteamOS-compatible build host, after reviewing the package recipe:
+
+```bash
+makepkg -s
+```
+
+The package has not been built or installed in this project. Its replacement metadata is not a validated bootloader/initramfs migration procedure; do not install it on the Deck until the generated packages, initramfs preset, boot entry, recovery path, and rollback are tested.
+
 ## Output and limitations
 
 The script runs `make all` and builds the bpftool BTF header. It does not create Arch packages, install modules, replace Valve's kernel, regenerate the Deck initramfs, change the bootloader, or set the performance profile. Those steps require a separate package/install design with a verified fallback kernel and rollback procedure.
