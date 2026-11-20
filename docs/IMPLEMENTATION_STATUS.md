@@ -29,6 +29,8 @@ The Charcoal config fragment's explicit disabling of the in-tree `JOYSTICK_XPAD`
 
 ## Not yet done / not yet validated
 
+- Full package build: `.github/workflows/kernel-build.yml` now runs an Arch-based kernel + headers + LAVD package build and validates the generated archive contents and merged config. The static policy/syntax workflow passes; the full build is still running and no successful artifact is available yet.
+
 - Download and verify the Valve source package archive with `bash scripts/fetch-valve-source.sh /path/to/trusted-steamos-keyring.gpg` if the signed package recipe artifact is needed. Then check out the pinned kernel tree with `scripts/checkout-valve-kernel.sh`; the helper verifies the resolved commit SHA. The current official package index is `jupiter-main`.
 - Reconcile all four config layers against the pinned kernel and review every unknown/removed Kconfig symbol. `scripts/merge-config.sh` now follows Valve's layering order (Valve base -> Valve Neptune -> Charcoal Neptune -> Charcoal). `config-charcoal` explicitly enables `CONFIG_MZEN2=y`, `CONFIG_SCHED_CLASS_EXT=y`, `CONFIG_LTO_CLANG_FULL=y`, `CONFIG_POLLY_CLANG=y`, and `CONFIG_JOYSTICK_XPAD=m`.
 - Confirm the Zen 2, Clang Polly, and 4.2 GHz patches apply cleanly, then confirm all retained patches compile. `scripts/build-kernel.sh` orchestrates the EPP import, these patches, config merge, and LLVM build; it does not install the kernel.
