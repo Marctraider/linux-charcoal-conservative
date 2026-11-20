@@ -16,7 +16,7 @@ This is the exact package-source artifact selected for the project baseline. It 
 
 ## Retrieval and verification
 
-Download both files from the snapshot directory above. Verify the detached signature using Valve/SteamOS package signing keys obtained through the official SteamOS key distribution process. Do not bypass signature verification.
+Use `bash scripts/fetch-valve-source.sh /path/to/trusted-steamos-keyring.gpg` to download both files, verify the detached signature using Valve/SteamOS package signing keys obtained and authenticated independently through the official SteamOS key distribution process, record the archive SHA-256, and extract the source. Do not bypass signature verification.
 
 The source archive is approximately 3.2 GiB. After signature verification, extract it and inspect its PKGBUILD, source URLs, patch list, config files, and commit/revision metadata. Record the SHA-256 of the downloaded archive and the resolved kernel Git commit in the release manifest before building.
 
