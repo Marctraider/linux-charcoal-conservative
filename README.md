@@ -12,7 +12,7 @@ A Steam Deck kernel project based on Valve's SteamOS/Neptune kernel configuratio
 - `CONFIG_CPU_MITIGATIONS=n`.
 - Van Gogh SMU CPU soft maximum changed from 3500 MHz to 4200 MHz.
 - AMD per-core EPP boost, ported from the requested upstream RFC only after checking applicability to the pinned kernel revision.
-- `CONFIG_SCHED_CLASS_EXT=y` and LAVD userspace installation/configuration.
+- `CONFIG_SCHED_CLASS_EXT=y` and SteamOS `scx-scheds` 1.1.3.2 userspace package (`packages/scx-scheds/PKGBUILD`), pending runtime validation.
 - Installer replaces the Valve Neptune kernel package and configures the requested performance profile.
 
 ## Current status
