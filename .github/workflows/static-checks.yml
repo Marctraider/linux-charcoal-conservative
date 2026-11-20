@@ -40,6 +40,9 @@ jobs:
           grep -Fxq 'CONFIG_MZEN2=y' config-charcoal
           grep -Fxq 'CONFIG_JOYSTICK_XPAD=m' config-charcoal
           grep -Fxq 'CONFIG_JOYSTICK_XBOX_GIP=m' config-neptune
+          grep -Fxq 'CONFIG_BPF_SYSCALL=y' config-valve-base
+          grep -Fxq 'CONFIG_BPF_JIT=y' config-valve-base
+          grep -Fxq 'CONFIG_DEBUG_INFO_BTF=y' config-valve-base
           for f in config-valve-base config-valve-neptune config-neptune config-charcoal; do
             ! grep -Eiq 'RYZEN_SMU|XONE|XPADNEO|XPAD_NOONE' "$f"
             ! grep -Fxq 'CONFIG_JOYSTICK_XPAD=n' "$f"
