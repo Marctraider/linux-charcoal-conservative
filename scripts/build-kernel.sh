@@ -50,6 +50,7 @@ require_y() {
 require_value CPU_MITIGATIONS n
 require_y SCHED_CLASS_EXT
 require_y X86_AMD_PSTATE
+require_y MZEN2
 require_y LTO_CLANG_FULL
 require_y POLLY_CLANG
 require_y BPF
