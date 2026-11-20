@@ -16,6 +16,7 @@ jobs:
           bash -n scripts/fetch-scx-scheds.sh
           bash -n scripts/checkout-valve-kernel.sh
           bash -n scripts/apply-kernel-patches.sh
+          bash -n scripts/apply-amd-epp-rfc.sh
       - name: Check requested config policy
         run: |
           test -s config-valve-base
