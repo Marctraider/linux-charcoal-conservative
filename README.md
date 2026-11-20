@@ -4,7 +4,7 @@ A Steam Deck kernel project based on Valve's SteamOS/Neptune kernel configuratio
 
 ## Requested scope
 
-- Target SteamOS 3.10 / Linux 7.3 (exact Valve source revision must be pinned before building).
+- Target SteamOS 3.10 / Linux 7.3; pinned Valve source tag `7.3.1-valve3` at commit `6fbfd992c8fee6877006b53cca0110bc9586fc00`.
 - Preserve Charcoal's `config-charcoal` and `config-neptune` configuration choices, adapted for the target kernel.
 - Exclude only the external drivers `ryzen_smu`, `xone`, `xpadneo`, and `xpad-noone`. Keep in-tree Linux drivers available.
 - Zen 2 / AMD Van Gogh compiler target.
