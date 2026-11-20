@@ -54,6 +54,9 @@ require_y MZEN2
 require_y LTO_CLANG_FULL
 require_y POLLY_CLANG
 require_y BPF
+require_y BPF_SYSCALL
+require_y BPF_JIT
+require_y CGROUPS
 require_y DEBUG_INFO_BTF
 
 echo "Starting LLVM kernel build with $JOBS jobs..."
