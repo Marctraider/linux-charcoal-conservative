@@ -31,12 +31,10 @@ for fragment in config-valve-neptune config-neptune config-charcoal; do
   }
 done
 
-cp "$BASE_CONFIG" "$KERNEL_TREE/.config"
-
 # Mirror Valve's own package layering first, then apply the Charcoal config.
 # Order matters: later fragments intentionally override earlier values.
 "$KERNEL_TREE/scripts/kconfig/merge_config.sh" -m -O "$KERNEL_TREE" \
-  "$KERNEL_TREE/.config" \
+  "$BASE_CONFIG" \
   "$ROOT/config-valve-neptune" \
   "$ROOT/config-neptune" \
   "$ROOT/config-charcoal"
