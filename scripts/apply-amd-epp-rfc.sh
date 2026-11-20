@@ -54,15 +54,25 @@ for n in 2 3 4 5; do
   }
 done
 
-# git am applies the ordered series and records the original author/message.
-# Abort the entire series if any patch does not apply cleanly.
+# Patches 1-3 contain the driver changes and are an atomic required unit.
+# Patch 4 is documentation-only; attempt it separately so a doc-context
+# conflict does not discard the functional driver changes.
 if ! git -C "$TREE" -c user.name="Kernel Patch Import" \
      -c user.email="kernel-patch-import@localhost" \
-     am --keep-cr "$TMP/1.patch" "$TMP/2.patch" "$TMP/3.patch" "$TMP/4.patch"; then
+     am --keep-cr "$TMP/1.patch" "$TMP/2.patch" "$TMP/3.patch"; then
   git -C "$TREE" am --abort || true
-  echo "error: RFC series did not apply cleanly; tree restored to the tag." >&2
+  echo "error: functional EPP RFC patches did not apply; tree restored to the tag." >&2
   exit 1
 fi
 
-echo "Applied RFC series on top of $TAG."
-echo "Review all four commits, run the target kernel build and hardware tests."
+if git -C "$TREE" -c user.name="Kernel Patch Import" \
+     -c user.email="kernel-patch-import@localhost" \
+     am --keep-cr "$TMP/4.patch"; then
+  echo "Applied EPP driver patches and documentation patch."
+else
+  git -C "$TREE" am --abort || true
+  echo "warning: EPP driver patches applied, but the documentation-only RFC patch did not apply." >&2
+  echo "Add the documentation manually after reviewing the target amd-pstate guide." >&2
+fi
+
+echo "EPP driver series imported on top of $TAG. Review commits, compile, and hardware-test."
