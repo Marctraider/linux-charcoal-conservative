@@ -10,3 +10,5 @@ Retry after correcting the EPP importer checksum and adding persistent source-do
 Retry kernel build using locally vendored, Message-ID-verified AMD EPP RFC patches; no network dependency during prepare().
 
 Retry after detecting RFC patch 1 is already present in Valve source.
+
+Retry with three-way application for RFC patches 2-4.
