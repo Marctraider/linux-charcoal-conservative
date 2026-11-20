@@ -62,7 +62,6 @@ source=(
   config-charcoal
   "clang-polly.patch::file://$PWD/patches/clang-polly.patch"
   "vangogh_allow_higher_cpu_freq.patch::file://$PWD/patches/vangogh_allow_higher_cpu_freq.patch"
-  "apply-amd-epp-rfc.sh::file://$PWD/scripts/apply-amd-epp-rfc.sh"
   "zen2-cpu-optimizations.patch::file://$PWD/patches/zen2-cpu-optimizations.patch"
   "amd-pstate-epp-boost.service::file://$PWD/systemd/amd-pstate-epp-boost.service"
 )
@@ -74,7 +73,6 @@ sha256sums=(
   '3ce95eca326d499d6fbe7cca5bc0f19733ea5bdca4c1c5a758bd08e9bb73bbfd'
   '71e5926efc30833a6fd756b9358529ac695fa688ae71cd74e31dd274ae1ecf05'
   '375c8e17daf9e60bc6c211dd73f0c67ec241bd40a83d812a08eeb42aab6128d9'
-  'e5fd45591369d64aad5d02e8782043c73659244047f141a99be972b76ba4267d'
   'ed36bcab65f959200c91991e3337fd716883ef0915fbec65d6252f09fd72c666'
   'd0fc67545dcf738fa69853c43ceab858bc2f87cf5910ae1755c7092679ee3562'
 )
@@ -101,7 +99,7 @@ prepare() {
   }
 
   if ! grep -Fq 'module_param_cb(epp_boost' drivers/cpufreq/amd-pstate.c; then
-    bash ../apply-amd-epp-rfc.sh "$PWD"
+    bash "$startdir/scripts/apply-amd-epp-rfc.sh" "$PWD"
   else
     echo "AMD per-core EPP RFC already applied."
   fi
