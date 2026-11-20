@@ -21,8 +21,9 @@ This is the exact SteamOS 3.10 package recipe selected for LAVD. The source arch
 The SteamOS PKGBUILD's source and tag are now pinned above. Build it with `makepkg -s` from `packages/scx-scheds/`. Before enabling its service, build and run it against the project's Linux 7.3.1 kernel with:
 
 - `CONFIG_SCHED_CLASS_EXT=y`
-- kernel BTF enabled and available at runtime
-- the required BPF filesystem and privileges
+- `CONFIG_BPF=y`, `CONFIG_BPF_SYSCALL=y`, and `CONFIG_BPF_JIT=y`
+- `CONFIG_DEBUG_INFO_BTF=y` and kernel BTF available at runtime
+- `CONFIG_CGROUPS=y`, the required BPF filesystem, and privileges
 - matching Clang/LLVM and libbpf build dependencies
 
 The upstream LAVD project describes `scx_lavd` as a sched_ext BPF scheduler with a Rust userspace loader. The kernel sched_ext option alone does not install or activate it.
