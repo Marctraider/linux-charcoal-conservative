@@ -8,7 +8,7 @@ A Steam Deck kernel project based on Valve's SteamOS/Neptune kernel configuratio
 - Preserve Charcoal's `config-charcoal` and `config-neptune` configuration choices, adapted for the target kernel.
 - Exclude only the external drivers `ryzen_smu`, `xone`, `xpadneo`, and `xpad-noone`. Keep in-tree Linux drivers available.
 - Zen 2 / AMD Van Gogh compiler target.
-- Clang full LTO and Polly where supported by the target source/toolchain.
+- Clang full LTO and Polly. The Charcoal Polly Kconfig/Kbuild support patch is included so `CONFIG_POLLY_CLANG=y` is defined in the Valve tree; the build still requires a Clang toolchain with Polly enabled.
 - `CONFIG_CPU_MITIGATIONS=n`.
 - Van Gogh SMU CPU soft maximum changed from 3500 MHz to 4200 MHz.
 - AMD per-core EPP boost, ported from the requested upstream RFC only after checking applicability to the pinned kernel revision.
