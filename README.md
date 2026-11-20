@@ -17,7 +17,7 @@ A Steam Deck kernel project based on Valve's SteamOS/Neptune kernel configuratio
 
 ## Current status
 
-This repository is being initialized. Configuration fragments are reference inputs, not yet a validated Linux 7.3 `.config`. The exact SteamOS 3.10 source commit, kernel build, boot test, suspend/resume test, audio/Wi-Fi/input validation, and installer test are required before calling this build usable.
+The Valve package-source pin is recorded in `docs/SOURCE_PIN.md`: `linux-neptune-73` 7.3.1 `valve3-1` from the `jupiter-3.10` snapshot. The source archive still must be downloaded and signature-verified, and its extracted PKGBUILD/base config and resolved kernel commit recorded. Configuration fragments remain reference inputs, not a validated Linux 7.3 `.config`. Kernel build, boot test, suspend/resume test, audio/Wi-Fi/input validation, and installer test are still required before calling this build usable.
 
 No third-party driver source is vendored or built. No unrelated scheduler patches are included.
 
