@@ -29,7 +29,7 @@ The upstream LAVD project describes `scx_lavd` as a sched_ext BPF scheduler with
 
 ## Runtime integration policy
 
-The package installs `/usr/bin/scx_lavd`, `/etc/default/scx`, and `/usr/lib/systemd/system/scx.service`. Its defaults select `SCX_SCHEDULER=scx_lavd` and `SCX_FLAGS='--pinned-slice-us 500 --dd-max-wait-us 0'`. The eventual installer must install the verified binary and runtime libraries, then enable the service only after the kernel and required BPF/BTF facilities are ready. The service must:
+The package installs `/usr/bin/scx_lavd`, `/etc/default/scx`, and `/usr/lib/systemd/system/scx.service`. Its defaults select `SCX_SCHEDULER=scx_lavd` and `SCX_FLAGS='--pinned-slice-us 500 --dd-max-wait-us 0'`. Its defaults select `SCX_SCHEDULER=scx_lavd` and `SCX_FLAGS='--pinned-slice-us 500 --dd-max-wait-us 0'`. The eventual installer must install the verified binary and runtime libraries, then enable the service only after the kernel and required BPF/BTF facilities are ready. The service must:
 
 1. Use the explicit `scx_lavd` executable and a documented, conservative argument set.
 2. Restart on failure with rate limiting.
