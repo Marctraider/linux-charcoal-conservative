@@ -10,7 +10,7 @@ TREE="${1:?usage: $0 KERNEL_TREE}"
 TREE="$(realpath "$TREE")"
 TAG="7.3.1-valve3"
 MID="20260728073150.54964-"
-BASES=("https://lore.kernel.org/linux-pm" "https://lore.kernel.org/linux-kernel" "https://lore.kernel.org/lkml")
+BASES=("https://lore.landau.one/lkml" "https://lore.kernel.org/linux-pm" "https://lore.kernel.org/linux-kernel" "https://lore.kernel.org/lkml")
 
 command -v curl >/dev/null || { echo "error: curl is required" >&2; exit 1; }
 command -v git >/dev/null || { echo "error: git is required" >&2; exit 1; }
