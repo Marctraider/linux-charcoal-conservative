@@ -39,10 +39,12 @@ The build stops rather than silently dropping a requested config option. If the 
 The root `PKGBUILD` follows Valve's kernel package layout and emits `linux-neptune-73` plus its headers package at `pkgrel=2`, preserving Valve's package and `pkgbase` identity as a drop-in upgrade. On an Arch/SteamOS-compatible build host, after reviewing the package recipe:
 
 ```bash
-makepkg -s
+bash scripts/build-packages.sh
 ```
 
-The package has not been built or installed in this project. Matching package identity is not proof of a validated bootloader/initramfs migration procedure; do not install it on the Deck until the generated packages, initramfs preset, boot entry, recovery path, and rollback are tested.
+The script builds the kernel/headers package and the pinned LAVD userspace package as an unprivileged user. It does not install either package.
+
+The packages have not been built or installed in this project. Matching package identity is not proof of a validated bootloader/initramfs migration procedure; do not install it on the Deck until the generated packages, initramfs preset, boot entry, recovery path, and rollback are tested.
 
 ## Output and limitations
 
