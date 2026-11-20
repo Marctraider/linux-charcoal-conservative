@@ -4,7 +4,7 @@ This repository now has a reproducible source/config/patch/build path. It does n
 
 ## Host requirements
 
-Use a Linux build host with several hundred GiB of free disk space for the large kernel source and build tree. Install:
+Use a Linux build host with ample free disk space for the full kernel source, compiler intermediates, and package staging. Install:
 
 - Git, GNU patch, curl, make, bc, bison, flex, cpio, gettext, perl, python, tar, xz, zstd
 - Clang/LLVM, LLD, llvm-ar, llvm-nm, llvm-objcopy, pahole, libelf, OpenSSL headers
