@@ -4,7 +4,7 @@
 
 - SteamOS 3.10 is the intended target release; its Preview notes are available from Valve.
 - Linux 7.3 is the intended kernel series.
-- The exact Valve `linux-integration` revision used by the SteamOS 3.10 package still needs to be pinned from Valve's package source. Do not substitute an arbitrary upstream 7.3 stable tag: Valve's tree/configuration is the compatibility baseline.
+- Source package pin identified: Valve `linux-neptune-73` 7.3.1 `valve3-1`, from the official `jupiter-3.10` source snapshot (archive dated 2026-11-16). See `docs/SOURCE_PIN.md`. The 3.2 GiB source archive and detached signature have not yet been downloaded or verified here; the extracted PKGBUILD and resolved Git commit still need recording. Do not substitute an arbitrary upstream 7.3 stable tag: Valve's tree/configuration is the compatibility baseline.
 - The Charcoal configuration fragments in this repository are copied from V10lator/linux-charcoal. Their contents must be reconciled against the pinned 7.3 tree with `merge_config.sh` and `olddefconfig`.
 
 ## Driver policy
@@ -27,7 +27,7 @@ The Charcoal config fragment's explicit disabling of the in-tree `JOYSTICK_XPAD`
 
 ## Not yet done / not yet validated
 
-- Pin exact Valve SteamOS 3.10 source revision and base config.
+- Download and verify the pinned Valve source archive, inspect its PKGBUILD, record its resolved kernel Git commit and identify the shipped base config.
 - Reconcile both config fragments against the pinned kernel and review every unknown/removed Kconfig symbol.
 - Confirm all retained patches apply cleanly and compile.
 - Port and validate EPP boost patch series.
