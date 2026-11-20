@@ -14,9 +14,42 @@ jobs:
           bash -n scripts/merge-config.sh
           bash -n scripts/fetch-valve-source.sh
           bash -n scripts/fetch-scx-scheds.sh
+          bash -n scripts/checkout-valve-kernel.sh
+          bash -n scripts/apply-kernel-patches.sh
       - name: Check requested config policy
         run: |
-          grep -Eq '^CONFIG_CPU_MITIGATIONS=n$' config-charcoal
+          test -s config-valve-base
+          test -s config-valve-neptune
+          grep -Eq '^CONFIG_CPU_MITIGATIONS=n
+          grep -Eq '^CONFIG_SCHED_CLASS_EXT=y
+          ! grep -Eq '^CONFIG_JOYSTICK_XPAD=n$' config-charcoal
+          ! grep -Eq '^CONFIG_JOYSTICK_XBOX_GIP=n$' config-charcoal
+          grep -Eq '^CONFIG_JOYSTICK_XBOX_GIP=m$' config-neptune
+          ! grep -Eiq 'ryzen_smu|xone|xpadneo|xpad-noone' config-charcoal config-neptune
+ config-charcoal
+          grep -Eq '^CONFIG_SCHED_CLASS_EXT=y$' config-charcoal
+          ! grep -Eq '^CONFIG_JOYSTICK_XPAD=n$' config-charcoal
+          ! grep -Eq '^CONFIG_JOYSTICK_XBOX_GIP=n$' config-charcoal
+          grep -Eq '^CONFIG_JOYSTICK_XBOX_GIP=m$' config-neptune
+          ! grep -Eiq 'ryzen_smu|xone|xpadneo|xpad-noone' config-charcoal config-neptune
+ config-charcoal
+          grep -Eq '^CONFIG_JOYSTICK_XPAD=m
+          ! grep -Eq '^CONFIG_JOYSTICK_XPAD=n$' config-charcoal
+          ! grep -Eq '^CONFIG_JOYSTICK_XBOX_GIP=n$' config-charcoal
+          grep -Eq '^CONFIG_JOYSTICK_XBOX_GIP=m$' config-neptune
+          ! grep -Eiq 'ryzen_smu|xone|xpadneo|xpad-noone' config-charcoal config-neptune
+ config-charcoal
+          grep -Eq '^CONFIG_SCHED_CLASS_EXT=y$' config-charcoal
+          ! grep -Eq '^CONFIG_JOYSTICK_XPAD=n$' config-charcoal
+          ! grep -Eq '^CONFIG_JOYSTICK_XBOX_GIP=n$' config-charcoal
+          grep -Eq '^CONFIG_JOYSTICK_XBOX_GIP=m$' config-neptune
+          ! grep -Eiq 'ryzen_smu|xone|xpadneo|xpad-noone' config-charcoal config-neptune
+ config-charcoal
+          ! grep -Eq '^CONFIG_JOYSTICK_XPAD=n$' config-charcoal
+          ! grep -Eq '^CONFIG_JOYSTICK_XBOX_GIP=n$' config-charcoal
+          grep -Eq '^CONFIG_JOYSTICK_XBOX_GIP=m$' config-neptune
+          ! grep -Eiq 'ryzen_smu|xone|xpadneo|xpad-noone' config-charcoal config-neptune
+ config-charcoal
           grep -Eq '^CONFIG_SCHED_CLASS_EXT=y$' config-charcoal
           ! grep -Eq '^CONFIG_JOYSTICK_XPAD=n$' config-charcoal
           ! grep -Eq '^CONFIG_JOYSTICK_XBOX_GIP=n$' config-charcoal
