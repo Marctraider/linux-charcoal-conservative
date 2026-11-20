@@ -2,15 +2,15 @@
 
 ## Candidate SteamOS package source
 
-The SteamOS `holo-3.10` source index lists:
+The SteamOS `holo-3.10` source index lists a newer candidate (the latest listed in the snapshot):
 
 - Package: `scx-scheds`
-- Version/release: `1.1.1.linux.steamos-4`
-- Source archive: `scx-scheds-1.1.1.linux.steamos-4.src.tar.gz`
-- Detached signature: `scx-scheds-1.1.1.linux.steamos-4.src.tar.gz.sig`
+- Version/release: `1.1.3.linux.steamos.2-2`
+- Source archive: `scx-scheds-1.1.3.linux.steamos.2-2.src.tar.gz`
+- Detached signature: `scx-scheds-1.1.3.linux.steamos.2-2.src.tar.gz.sig`
 - Snapshot directory: `https://steamdeck-packages.steamos.cloud/archlinux-mirror/sources/holo-3.10/`
 
-This is a candidate SteamOS-packaged userspace source, not yet a validated build dependency for the pinned 7.3.1 kernel. Download and verify the archive using the SteamOS package signing key before inspecting its PKGBUILD and contents.
+This is a candidate SteamOS-packaged userspace source, not yet a validated build dependency for the pinned 7.3.1 kernel. The source archive is listed at 265.1 MiB, dated 2026-11-03. Use `bash scripts/fetch-scx-scheds.sh /path/to/trusted-steamos-keyring.gpg` to download, verify its detached signature, and extract it before inspecting the PKGBUILD and contents.
 
 ## Required contents and compatibility checks
 
