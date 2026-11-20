@@ -183,7 +183,7 @@ _package() {
   optdepends=(
     "$pkgbase-headers: headers and scripts for building modules"
     'linux-firmware: firmware images needed for some devices'
-    'scx-scheds: to use sched-ext schedulers'
+    'scx-scheds: to run the requested scx_lavd userspace scheduler'
     'wireless-regdb: to set the correct wireless channels of your country'
   )
   provides=(
