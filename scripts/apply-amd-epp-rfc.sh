@@ -52,7 +52,7 @@ done
 
 git -C "$TREE" config user.name "Kernel Patch Import"
 git -C "$TREE" config user.email "kernel-patch-import@localhost"
-if ! git -C "$TREE" am --keep-cr "$PATCH_DIR/2.patch" \
+if ! git -C "$TREE" -c am.threeWay=true am --keep-cr "$PATCH_DIR/2.patch" \
      "$PATCH_DIR/3.patch" "$PATCH_DIR/4.patch"; then
   git -C "$TREE" am --abort || true
   echo "error: AMD EPP RFC patches 2-4 did not apply; tree restored to the tag." >&2
