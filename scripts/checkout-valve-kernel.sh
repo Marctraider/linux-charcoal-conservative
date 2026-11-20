@@ -30,5 +30,7 @@ commit="$(git rev-parse HEAD)"
   echo "error: tag resolved to $commit, expected $EXPECTED_COMMIT" >&2
   exit 1
 }
-printf '%s\n' "$commit" | tee SOURCE_COMMIT
+record="$(dirname "$DEST")/$(basename "$DEST").SOURCE_COMMIT"
+printf '%s\n' "$commit" | tee "$record"
 printf 'Checked out %s at %s\n' "$TAG" "$commit"
+printf 'Commit record: %s\n' "$record"
