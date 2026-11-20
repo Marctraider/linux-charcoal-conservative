@@ -6,6 +6,19 @@ KERNEL_TREE="${1:?usage: $0 KERNEL_TREE}"
 
 KERNEL_TREE="$(realpath "$KERNEL_TREE")"
 PATCH_FILE="$ROOT/patches/vangogh_allow_higher_cpu_freq.patch"
+EXPECTED_SOURCE="6fbfd992c8fee6877006b53cca0110bc9586fc00"
+
+if [[ -d "$KERNEL_TREE/.git" ]]; then
+  pinned="$(git -C "$KERNEL_TREE" rev-parse '7.3.1-valve3^{commit}' 2>/dev/null || true)"
+  [[ "$pinned" == "$EXPECTED_SOURCE" ]] || {
+    echo "error: source tag 7.3.1-valve3 does not resolve to the pinned commit" >&2
+    exit 1
+  }
+  git -C "$KERNEL_TREE" merge-base --is-ancestor "$EXPECTED_SOURCE" HEAD || {
+    echo "error: kernel tree is not based on the pinned Valve source commit" >&2
+    exit 1
+  }
+fi
 
 [[ -f "$KERNEL_TREE/drivers/gpu/drm/amd/pm/swsmu/smu11/vangogh_ppt.c" ]] || {
   echo "error: not a Linux source tree: $KERNEL_TREE" >&2
