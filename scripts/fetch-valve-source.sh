@@ -59,7 +59,7 @@ NEPTUNE_CONFIG="$(find "$DEST/extracted" -type f -name config-neptune -print -qu
   echo "error: expected Valve base config files are missing" >&2
   exit 1
 }
-printf '%s  %s\\n' \
+printf '%s  %s\n' \
   "ecd8c76eb203493e67ba4052e7bc1fa46f51c91566f102172e7a18d7de2dd5eb" "$BASE_CONFIG" \
   "b91c3ed65067704c8fdb8289d44ed18aa62f98f52c3b6d91fb72bc5b1606ae79" "$NEPTUNE_CONFIG" \
   | sha256sum --check --status
@@ -67,5 +67,5 @@ printf '%s  %s\\n' \
 echo "Verified PKGBUILD tag and Valve config SHA-256 values."
 
 echo
-echo "Next: inspect the extracted PKGBUILD and embedded bare Git repository."
-echo "Record the package's source revision and shipped base config before building."
+echo "Next: inspect the extracted PKGBUILD and confirm the pinned source URL and tag."
+echo "The kernel Git checkout is performed separately by scripts/checkout-valve-kernel.sh."
