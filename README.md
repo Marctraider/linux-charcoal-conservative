@@ -1,0 +1,30 @@
+# Charcoal Conservative — SteamOS 3.10 / Linux 7.3
+
+A Steam Deck kernel project based on Valve's SteamOS/Neptune kernel configuration and V10lator's Charcoal configuration.
+
+## Requested scope
+
+- Target SteamOS 3.10 / Linux 7.3 (exact Valve source revision must be pinned before building).
+- Preserve Charcoal's `config-charcoal` and `config-neptune` configuration choices, adapted for the target kernel.
+- Exclude only the external drivers `ryzen_smu`, `xone`, `xpadneo`, and `xpad-noone`. Keep in-tree Linux drivers available.
+- Zen 2 / AMD Van Gogh compiler target.
+- Clang full LTO and Polly where supported by the target source/toolchain.
+- `CONFIG_CPU_MITIGATIONS=n`.
+- Van Gogh SMU CPU soft maximum changed from 3500 MHz to 4200 MHz.
+- AMD per-core EPP boost, ported from the requested upstream RFC only after checking applicability to the pinned kernel revision.
+- `CONFIG_SCHED_CLASS_EXT=y` and LAVD userspace installation/configuration.
+- Installer replaces the Valve Neptune kernel package and configures the requested performance profile.
+
+## Current status
+
+This repository is being initialized. Configuration fragments are reference inputs, not yet a validated Linux 7.3 `.config`. The exact SteamOS 3.10 source commit, kernel build, boot test, suspend/resume test, audio/Wi-Fi/input validation, and installer test are required before calling this build usable.
+
+No third-party driver source is vendored or built. No unrelated scheduler patches are included.
+
+## Configuration workflow
+
+The build must start from the pinned SteamOS/Neptune base config, merge `config-neptune` and `config-charcoal`, then run the target kernel's `olddefconfig`. The resulting .config must be checked for unmet or renamed options and reviewed against the Deck hardware before packaging.
+
+## Safety notes
+
+Disabling CPU vulnerability mitigations reduces security. A 4.2 GHz firmware/SMU limit is a requested ceiling, not a guarantee that the APU will sustain that frequency; firmware, voltage, temperature and shared CPU/GPU power limits still apply.
