@@ -27,9 +27,9 @@ The checkout helper verifies tag `7.3.1-valve3` resolves to commit `6fbfd992c8fe
 The build helper then:
 
 1. Imports the requested AMD per-core EPP RFC driver series. If its functional patches do not apply cleanly, it stops and restores the kernel tree to the pinned tag.
-2. Applies Charcoal's Polly Kconfig/Kbuild support and the requested Van Gogh 4.2 GHz ceiling patch, after dry-running both against the source tree.
+2. Applies the Zen 2 CPU tuning patch, Charcoal's Polly Kconfig/Kbuild support, and the requested Van Gogh 4.2 GHz ceiling patch, after dry-running the patches against the source tree.
 3. Merges Valve base -> Valve Neptune -> Charcoal Neptune -> Charcoal config, then runs `olddefconfig`.
-4. Verifies CPU mitigations remain disabled, sched_ext and AMD P-State remain enabled, and full Clang LTO, Polly, BPF, and BTF support survived Kconfig resolution.
+4. Verifies CPU mitigations remain disabled, sched_ext and AMD P-State remain enabled, and Zen 2, full Clang LTO, Polly, BPF, and BTF support survived Kconfig resolution.
 5. Builds the kernel and bpftool BTF header with LLVM.
 
 The build stops rather than silently dropping a requested config option. If the RFC cannot be applied to this diverged Valve source, that conflict must be resolved and reviewed manually; do not force-apply it.
