@@ -1,22 +1,27 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Import David Vernet's four-patch AMD per-core EPP boost RFC.
-# The original email patches are vendored and identity-checked so builds do
-# not depend on public-inbox mirrors being reachable at build time.
-# Source archive: https://github.com/sandikata/ROKO__/tree/c45e1d966c9bbc88bb02d1b22f05a94325746036/sys-kernel/xanmod-kernel/files
-# Original thread: https://lore.kernel.org/lkml/20260728073150.54964-1-void@manifault.com/
+# Validate and import David Vernet's four-patch AMD per-core EPP RFC.
+# This uses context-based git apply rather than git am's three-way fallback:
+# Valve's pinned tree contains some RFC-1 documentation but its header blob
+# is not byte-identical to the RFC-1 result, which makes a three-way merge
+# unreliable even where the remaining hunks apply cleanly.
 # Usage: scripts/apply-amd-epp-rfc.sh KERNEL_TREE
 
 TREE="${1:?usage: $0 KERNEL_TREE}"
 TREE="$(realpath "$TREE")"
 TAG="7.3.1-valve3"
+BASE_COMMIT="6fbfd992c8fee6877006b53cca0110bc9586fc00"
 PATCH_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../patches/amd-pstate-epp-rfc" && pwd)"
 
 command -v git >/dev/null || { echo "error: git is required" >&2; exit 1; }
 [[ -d "$TREE/.git" ]] || { echo "error: expected a Git checkout: $TREE" >&2; exit 1; }
 [[ "$(git -C "$TREE" describe --exact-match --tags HEAD 2>/dev/null || true)" == "$TAG" ]] || {
   echo "error: HEAD must be the untouched $TAG tag before applying the RFC." >&2
+  exit 1
+}
+[[ "$(git -C "$TREE" rev-parse HEAD)" == "$BASE_COMMIT" ]] || {
+  echo "error: kernel tree is not at the pinned Valve commit $BASE_COMMIT." >&2
   exit 1
 }
 [[ -z "$(git -C "$TREE" status --porcelain)" ]] || {
@@ -35,29 +40,46 @@ for n in 1 2 3 4; do
   }
 done
 
-# Valve's pinned tag already contains RFC patch 1's kernel-doc additions.
-# Confirm all five fields are documented before omitting that redundant patch.
-HEADER="$TREE/drivers/cpufreq/amd-pstate.h"
-for marker in \
-  '@val: Raw 64-bit value for atomic access via READ_ONCE()/WRITE_ONCE()' \
-  '@raw_epp: Whether the last EPP write was a raw numeric value rather than a' \
-  '@current_profile: Currently selected platform profile option' \
-  '@ppdev: Device registered with the platform profile handler' \
-  '@profile_name: Name under which @ppdev is registered'; do
-  grep -Fq "$marker" "$HEADER" || {
-    echo "error: patch 1 is not already represented in Valve's header: $marker" >&2
-    exit 1
-  }
-done
-
 git -C "$TREE" config user.name "Kernel Patch Import"
 git -C "$TREE" config user.email "kernel-patch-import@localhost"
-if ! git -C "$TREE" -c am.threeWay=true am --keep-cr "$PATCH_DIR/2.patch" \
-     "$PATCH_DIR/3.patch" "$PATCH_DIR/4.patch"; then
-  git -C "$TREE" am --abort || true
-  echo "error: AMD EPP RFC patches 2-4 did not apply; tree restored to the tag." >&2
-  exit 1
+
+# Patch 1 is documentation-only. Skip it only when its actual reverse diff
+# applies; marker greps alone are not sufficient to establish equivalence.
+if git -C "$TREE" apply --reverse --check "$PATCH_DIR/1.patch" >/dev/null 2>&1; then
+  echo "RFC patch 1/4 is already present in the pinned Valve source."
+else
+  echo "Preflighting RFC patch 1/4..."
+  if ! git -C "$TREE" apply --check "$PATCH_DIR/1.patch"; then
+    echo "error: RFC patch 1/4 does not apply to the pinned Valve source." >&2
+    exit 1
+  fi
+  git -C "$TREE" apply --index "$PATCH_DIR/1.patch"
+  git -C "$TREE" commit -m "cpufreq/amd-pstate: Document missing kernel-doc members"
 fi
 
-echo "AMD per-core EPP RFC patches 2-4 imported on top of $TAG; patch 1 was already present in Valve's tag."
-echo "Review the four commits, compile, and hardware-test before enabling epp_boost."
+# Apply each dependent patch only after its complete diff passes a dry run
+# against the result of the preceding patch. On any failure, restore the
+# exact pinned source so a later build cannot inherit a partial RFC.
+for n in 2 3 4; do
+  file="$PATCH_DIR/$n.patch"
+  subject="$(sed -n 's/^Subject: //p' "$file" | head -n1 | sed -E 's/^\[RFC PATCH [0-9]+\/4\] //')"
+  echo "Preflighting RFC patch $n/4: $subject"
+  if ! git -C "$TREE" apply --check "$file"; then
+    git -C "$TREE" reset --hard "$BASE_COMMIT" >/dev/null
+    echo "error: RFC patch $n/4 does not apply cleanly; restored kernel tree to $BASE_COMMIT." >&2
+    exit 1
+  fi
+  git -C "$TREE" apply --index "$file"
+  git -C "$TREE" commit -m "$subject" -m "Imported from RFC Message-ID 20260728073150.54964-$((n + 1))-void@manifault.com"
+done
+
+grep -Fq 'module_param_cb(epp_boost' "$TREE/drivers/cpufreq/amd-pstate.c"
+grep -Fq 'epp_boost_update_util' "$TREE/drivers/cpufreq/amd-pstate.h"
+grep -Fq 'Energy performance preference boosting' "$TREE/Documentation/admin-guide/pm/amd-pstate.rst"
+[[ -z "$(git -C "$TREE" status --porcelain)" ]] || {
+  echo "error: RFC import left an unexpected dirty worktree." >&2
+  exit 1
+}
+
+echo "PASS: RFC patches 1-4 are represented/applied on the exact Valve $TAG source."
+git -C "$TREE" log -4 --oneline
