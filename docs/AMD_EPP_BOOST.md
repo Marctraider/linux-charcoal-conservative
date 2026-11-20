@@ -21,6 +21,12 @@ This is an RFC, not an upstream-merged feature. The implementation must be revie
 - Correctly register/unregister update-util hooks across CPU online/offline, suspend/resume, policy teardown, and runtime parameter changes.
 - Preserve ordering between `cppc_req_cached` updates and MSR writes so restoring the boost cannot reapply stale policy state.
 
+## Target-tree relationship
+
+The RFC series declares base commit `92bf086d086f7cfe0d6f807dfd6b8d11bc61b626`. The Valve `7.3.1-valve3` source resolves to `6fbfd992c8fee6877006b53cca0110bc9586fc00`. GitHub's comparison reports these histories as diverged (merge base `f5098b6bae761e346ebcd9da7f95622c04733cff`), so the RFC is not assumed to apply cleanly. The target source still has the cache-after-MSR-write ordering that RFC patch 2 addresses, and the key insertion point before `amd_pstate_epp_cpu_init()` is present, but only a clean-tree `git am` test can establish whether all four patches apply.
+
+`scripts/apply-amd-epp-rfc.sh` fetches all four original RFC messages by immutable Message-ID, verifies each subject and Message-ID, and attempts to apply the series on a clean checkout of the exact Valve tag. It aborts the entire `git am` operation if any patch fails. This is an application attempt, not a successful port or build result.
+
 ## Porting checklist for the pinned tree
 
 1. Inspect Valve's exact `drivers/cpufreq/amd-pstate.c` and `amd-pstate.h`; compare the RFC's base blob IDs and APIs with the target.
