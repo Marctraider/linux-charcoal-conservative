@@ -37,4 +37,4 @@ The Charcoal config fragment's explicit disabling of the in-tree `JOYSTICK_XPAD`
 - Build kernel and headers with the selected Clang/LLVM toolchain.
 - Test boot, suspend/resume, Wi-Fi, Bluetooth, audio, touchscreen, controls, storage, GPU, fan/thermal behavior, performance profiles, and recovery/rollback on actual Steam Deck hardware.
 
-This status file is intentionally explicit: configuration fragments and one requested patch are present, but this is not yet a buildable or tested kernel release.
+This status file is intentionally explicit: Valve and Charcoal config layers, the requested frequency and Polly patches, EPP import tooling, kernel/LAVD package recipes, and build scripts are present. The kernel tree has not been checked out or compiled here, and no package has been built, installed, or boot-tested.
