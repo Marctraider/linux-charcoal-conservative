@@ -34,6 +34,10 @@ The build helper then:
 
 The build stops rather than silently dropping a requested config option. If the RFC cannot be applied to this diverged Valve source, that conflict must be resolved and reviewed manually; do not force-apply it.
 
+## Automated package build
+
+`.github/workflows/kernel-build.yml` runs the package build on GitHub Actions in an Arch Linux build environment. It validates that the kernel image, EPP unit, headers config, and LAVD executable/service are present in the generated packages, and checks the critical config values in the packaged headers. The workflow uploads the three packages as a 14-day artifact when all checks pass. The standard public GitHub-hosted runner has 14 GB storage, so the workflow removes unused preinstalled SDKs before building; if this is still insufficient, use a larger/self-hosted build host. See [GitHub runner specifications](https://docs.github.com/en/actions/reference/runners/github-hosted-runners).
+
 ## Package build
 
 The root `PKGBUILD` follows Valve's kernel package layout and emits `linux-neptune-73` plus its headers package at `pkgrel=2`, preserving Valve's package and `pkgbase` identity as a drop-in upgrade. On an Arch/SteamOS-compatible build host, after reviewing the package recipe:
