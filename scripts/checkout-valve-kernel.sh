@@ -6,6 +6,7 @@ set -euo pipefail
 DEST="${1:-$PWD/linux-neptune-73}"
 REPO="https://github.com/evlaV/linux-integration.git"
 TAG="7.3.1-valve3"
+EXPECTED_COMMIT="6fbfd992c8fee6877006b53cca0110bc9586fc00"
 
 command -v git >/dev/null || { echo "error: git is required" >&2; exit 1; }
 
@@ -25,5 +26,9 @@ actual="$(git describe --exact-match --tags HEAD)"
 }
 
 commit="$(git rev-parse HEAD)"
+[[ "$commit" == "$EXPECTED_COMMIT" ]] || {
+  echo "error: tag resolved to $commit, expected $EXPECTED_COMMIT" >&2
+  exit 1
+}
 printf '%s\n' "$commit" | tee SOURCE_COMMIT
 printf 'Checked out %s at %s\n' "$TAG" "$commit"
