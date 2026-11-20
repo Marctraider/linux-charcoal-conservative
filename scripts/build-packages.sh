@@ -13,5 +13,5 @@ makepkg --syncdeps --noconfirm
 
 echo
 echo "Built packages:"
-find "$ROOT" -maxdepth 2 -type f \( -name 'linux-neptune-73-*.pkg.tar.*' -o -name 'scx-scheds-*.pkg.tar.*' \) -print
+find "$ROOT" -maxdepth 3 -type f \( -name 'linux-neptune-73-*.pkg.tar.*' -o -name 'scx-scheds-*.pkg.tar.*' \) -print
 echo "No packages were installed."
