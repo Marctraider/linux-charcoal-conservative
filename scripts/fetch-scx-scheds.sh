@@ -33,6 +33,21 @@ sha256sum "$FILE" | tee "$FILE.sha256"
 mkdir -p extracted
 tar --extract --gzip --file "$FILE" --directory extracted
 
-echo "Inspect PKGBUILD and verify that the build includes the scx_lavd binary."
-echo "Do not enable a service until the binary, dependencies, BTF requirements,"
-echo "and runtime behavior have been validated against the target Deck kernel."
+PKGBUILD_PATH="$(find extracted -type f -name PKGBUILD -print -quit)"
+[[ -n "$PKGBUILD_PATH" ]] || {
+  echo "error: SteamOS scx source archive contains no PKGBUILD" >&2
+  exit 1
+}
+grep -Fq 'pkgver=1.1.3.linux.steamos.2' "$PKGBUILD_PATH" || {
+  echo "error: unexpected scx-scheds package version" >&2
+  exit 1
+}
+grep -Fq "sha256sums=('75ba7bfb870134009446fc8e286d0d2b99d9102f4c081c246eb87c2363e132b9')" "$PKGBUILD_PATH" || {
+  echo "error: scx source checksum does not match the pinned SteamOS recipe" >&2
+  exit 1
+}
+
+echo "Verified SteamOS scx-scheds 1.1.3 PKGBUILD and source checksum."
+echo "The package builds scx_lavd and installs its systemd service and defaults."
+echo "Do not enable the service until BTF, boot, suspend/resume, and recovery"
+echo "behavior have been validated against the target Deck kernel."
