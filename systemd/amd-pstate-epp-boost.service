@@ -6,7 +6,7 @@ After=systemd-modules-load.service
 
 [Service]
 Type=oneshot
-ExecStart=/usr/bin/sh -c 'printf "1\\n" > /sys/module/amd_pstate/parameters/epp_boost'
+ExecStart=/usr/bin/sh -c 'printf 1 > /sys/module/amd_pstate/parameters/epp_boost'
 RemainAfterExit=yes
 
 [Install]
