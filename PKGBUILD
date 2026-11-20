@@ -126,6 +126,14 @@ prepare() {
     patch --dry-run -Np1 < ../vangogh_allow_higher_cpu_freq.patch
     patch -Np1 < ../vangogh_allow_higher_cpu_freq.patch
   fi
+  grep -Fq -- '-march=znver2' arch/x86/Makefile || {
+    echo "error: Zen 2 Kbuild compiler flag is missing" >&2
+    exit 1
+  }
+  grep -Fq 'LLVMPolly.so' Makefile || {
+    echo "error: Clang Polly Kbuild plugin flag is missing" >&2
+    exit 1
+  }
 
   echo "Merging Valve and Charcoal configurations..."
   cp ../config-valve-base .config
