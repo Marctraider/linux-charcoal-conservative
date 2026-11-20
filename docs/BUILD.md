@@ -36,13 +36,13 @@ The build stops rather than silently dropping a requested config option. If the 
 
 ## Package build
 
-The root `PKGBUILD` follows Valve's kernel package layout, emits the kernel and headers packages, and declares a conflict/replacement with `linux-neptune-73`. On an Arch/SteamOS-compatible build host, after reviewing the package recipe:
+The root `PKGBUILD` follows Valve's kernel package layout and emits `linux-neptune-73` plus its headers package at `pkgrel=2`, preserving Valve's package and `pkgbase` identity as a drop-in upgrade. On an Arch/SteamOS-compatible build host, after reviewing the package recipe:
 
 ```bash
 makepkg -s
 ```
 
-The package has not been built or installed in this project. Its replacement metadata is not a validated bootloader/initramfs migration procedure; do not install it on the Deck until the generated packages, initramfs preset, boot entry, recovery path, and rollback are tested.
+The package has not been built or installed in this project. Matching package identity is not proof of a validated bootloader/initramfs migration procedure; do not install it on the Deck until the generated packages, initramfs preset, boot entry, recovery path, and rollback are tested.
 
 ## Output and limitations
 
