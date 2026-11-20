@@ -34,7 +34,7 @@ for n in 2 3 4; do
   fetched=false
   for base in "${BASES[@]}"; do
     url="$base/${MID}${n}-void@manifault.com/raw"
-    if curl --fail --location --retry 2 --retry-all-errors --output "$file.part" "$url"; then
+    if curl --user-agent 'Mozilla/5.0 (compatible; LinuxKernelBuilder/1.0)' --fail --location --retry 2 --retry-all-errors --output "$file.part" "$url"; then
       mv "$file.part" "$file"
       fetched=true
       break
@@ -60,7 +60,7 @@ DOC_FILE="$TMP/4.patch"
 DOC_FETCHED=false
 for base in "${BASES[@]}"; do
   url="$base/${MID}5-void@manifault.com/raw"
-  if curl --fail --location --retry 2 --retry-all-errors --output "$DOC_FILE.part" "$url"; then
+  if curl --user-agent 'Mozilla/5.0 (compatible; LinuxKernelBuilder/1.0)' --fail --location --retry 2 --retry-all-errors --output "$DOC_FILE.part" "$url"; then
     mv "$DOC_FILE.part" "$DOC_FILE"
     DOC_FETCHED=true
     break
