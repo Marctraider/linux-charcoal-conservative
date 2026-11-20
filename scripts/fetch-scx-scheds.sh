@@ -30,6 +30,10 @@ echo "Verifying detached SteamOS package signature..."
 gpgv --keyring "$KEYRING" "$FILE.sig" "$FILE"
 sha256sum "$FILE" | tee "$FILE.sha256"
 
+if [[ -d extracted ]] && [[ -n "$(find extracted -mindepth 1 -maxdepth 1 -print -quit)" ]]; then
+  echo "error: extracted directory is non-empty; move it aside before retrying" >&2
+  exit 1
+fi
 mkdir -p extracted
 tar --extract --gzip --file "$FILE" --directory extracted
 
