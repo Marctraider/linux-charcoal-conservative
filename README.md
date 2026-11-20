@@ -23,7 +23,7 @@ No third-party driver source is vendored or built. No unrelated scheduler patche
 
 ## Kernel packaging
 
-A root `PKGBUILD` based on Valve's Linux Neptune package recipe builds the kernel and headers, applies the requested patches/config layers, and declares replacement of `linux-neptune-73`. It is unbuilt and untested; do not install it on a Deck until boot entry, initramfs, and rollback handling are validated. See `docs/BUILD.md`.
+A root `PKGBUILD` based on Valve's Linux Neptune recipe emits a drop-in `linux-neptune-73` package at `pkgrel=2`, preserving Valve's package identity and `pkgbase` so the existing kernel preset naming remains compatible. It is unbuilt and untested; do not install it on a Deck until boot entry, initramfs, and rollback handling are validated. See `docs/BUILD.md`.
 
 ## Configuration workflow
 
