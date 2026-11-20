@@ -25,33 +25,9 @@ jobs:
           test -s patches/clang-polly.patch
           test -s patches/vangogh_allow_higher_cpu_freq.patch
           grep -Eq '^CONFIG_CPU_MITIGATIONS=n$' config-charcoal
-          grep -Eq '^CONFIG_SCHED_CLASS_EXT=y
-          grep -Eq '^CONFIG_JOYSTICK_XPAD=m$' config-charcoal
-          grep -Eq '^CONFIG_JOYSTICK_XBOX_GIP=m$' config-neptune
-          for f in config-valve-base config-valve-neptune config-neptune config-charcoal; do
-            ! grep -Eiq 'CONFIG_(RYZEN_SMU|XONE|XPADNEO|XPAD_NOONE)' "$f"
-            ! grep -Eq '^CONFIG_JOYSTICK_XPAD=n$' "$f"
-            ! grep -Eq '^CONFIG_JOYSTICK_XBOX_GIP=n$' "$f"
-          done
- config-charcoal
-          grep -Eq '^CONFIG_LTO_CLANG_FULL=y
-          grep -Eq '^CONFIG_JOYSTICK_XPAD=m$' config-charcoal
-          grep -Eq '^CONFIG_JOYSTICK_XBOX_GIP=m$' config-neptune
-          for f in config-valve-base config-valve-neptune config-neptune config-charcoal; do
-            ! grep -Eiq 'CONFIG_(RYZEN_SMU|XONE|XPADNEO|XPAD_NOONE)' "$f"
-            ! grep -Eq '^CONFIG_JOYSTICK_XPAD=n$' "$f"
-            ! grep -Eq '^CONFIG_JOYSTICK_XBOX_GIP=n$' "$f"
-          done
- config-charcoal
-          grep -Eq '^CONFIG_POLLY_CLANG=y
-          grep -Eq '^CONFIG_JOYSTICK_XPAD=m$' config-charcoal
-          grep -Eq '^CONFIG_JOYSTICK_XBOX_GIP=m$' config-neptune
-          for f in config-valve-base config-valve-neptune config-neptune config-charcoal; do
-            ! grep -Eiq 'CONFIG_(RYZEN_SMU|XONE|XPADNEO|XPAD_NOONE)' "$f"
-            ! grep -Eq '^CONFIG_JOYSTICK_XPAD=n$' "$f"
-            ! grep -Eq '^CONFIG_JOYSTICK_XBOX_GIP=n$' "$f"
-          done
- config-charcoal
+          grep -Eq '^CONFIG_SCHED_CLASS_EXT=y$' config-charcoal
+          grep -Eq '^CONFIG_LTO_CLANG_FULL=y$' config-charcoal
+          grep -Eq '^CONFIG_POLLY_CLANG=y$' config-charcoal
           grep -Eq '^CONFIG_JOYSTICK_XPAD=m$' config-charcoal
           grep -Eq '^CONFIG_JOYSTICK_XBOX_GIP=m$' config-neptune
           for f in config-valve-base config-valve-neptune config-neptune config-charcoal; do
