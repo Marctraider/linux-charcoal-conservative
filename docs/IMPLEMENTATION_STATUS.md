@@ -24,7 +24,7 @@ The Charcoal config fragment's explicit disabling of the in-tree `JOYSTICK_XPAD`
 - Van Gogh CPU ceiling: `patches/vangogh_allow_higher_cpu_freq.patch` changes the exact 3500 MHz assignment found in the pinned Valve `vangogh_ppt.c` to 4200 MHz. `scripts/apply-kernel-patches.sh` checks the source tag ancestry and patch context before applying. It has not yet been applied to a full local tree or compiled.
 - AMD per-core EPP boost: requested patch series is an RFC, not an established upstream Linux 7.3 feature. `scripts/apply-amd-epp-rfc.sh` fetches and applies the three functional RFC messages to a clean exact Valve tag checkout; the documentation-only fourth message is best-effort. The RFC base commit diverges from the Valve tag, so applicability is not assumed. No EPP patch has yet been applied or compiled.
 - LAVD: `CONFIG_SCHED_CLASS_EXT=y` enables the kernel sched_ext interface. The SteamOS `scx-scheds` 1.1.3.linux.steamos.2-2 PKGBUILD is now vendored at `packages/scx-scheds/PKGBUILD`, pinned to source commit `09f66735e5b52023a44001d019ca19204cb5760b`; it builds only `scx_lavd` and installs the systemd unit/defaults. The package has not yet been built against this kernel or enabled on Deck.
-- Performance mode: installer/service integration still needs to be implemented and tested. Do not force a performance profile until the supported SteamOS profile interface and restore behavior are confirmed.
+- Performance mode: SteamOS Manager exposes `steamosctl set-performance-profile performance` as the supported runtime control. Persistence and Steam Client restore ordering are not yet verified, so no boot-time service has been added. See `docs/PERFORMANCE_PROFILE.md`.
 
 ## Not yet done / not yet validated
 
