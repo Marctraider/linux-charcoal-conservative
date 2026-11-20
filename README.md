@@ -21,6 +21,10 @@ The Valve package-source pin is recorded in `docs/SOURCE_PIN.md`: `linux-neptune
 
 No third-party driver source is vendored or built. No unrelated scheduler patches are included.
 
+## Kernel packaging
+
+A root `PKGBUILD` based on Valve's Linux Neptune package recipe builds the kernel and headers, applies the requested patches/config layers, and declares replacement of `linux-neptune-73`. It is unbuilt and untested; do not install it on a Deck until boot entry, initramfs, and rollback handling are validated. See `docs/BUILD.md`.
+
 ## Configuration workflow
 
 The build starts from the vendored Valve base config and applies Valve Neptune, Charcoal Neptune, and Charcoal layers in order. Run `scripts/merge-config.sh /path/to/linux-source`; it runs the target tree's `olddefconfig` and fails if CPU mitigations are enabled, sched_ext is missing, or either in-tree XPAD driver is disabled. The exact source tag is `7.3.1-valve3`; see `docs/SOURCE_PIN.md`. Review the complete config diff and all unmet/renamed options against Deck hardware before packaging.
