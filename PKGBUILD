@@ -64,6 +64,7 @@ source=(
   "vangogh_allow_higher_cpu_freq.patch::patches/vangogh_allow_higher_cpu_freq.patch"
   "apply-amd-epp-rfc.sh::scripts/apply-amd-epp-rfc.sh"
   "zen2-cpu-optimizations.patch::patches/zen2-cpu-optimizations.patch"
+  "amd-pstate-epp-boost.service::systemd/amd-pstate-epp-boost.service"
 )
 sha256sums=(
   '502f1d9beb5f5320a6efd4fc02f9119c7d40cfa7b7f46da5e897d931f7a07c47'
@@ -75,6 +76,7 @@ sha256sums=(
   '375c8e17daf9e60bc6c211dd73f0c67ec241bd40a83d812a08eeb42aab6128d9'
   'e5fd45591369d64aad5d02e8782043c73659244047f141a99be972b76ba4267d'
   'ed36bcab65f959200c91991e3337fd716883ef0915fbec65d6252f09fd72c666'
+  'd0fc67545dcf738fa69853c43ceab858bc2f87cf5910ae1755c7092679ee3562'
 )
 
 # https://www.kernel.org/pub/linux/kernel/v7.x/sha256sums.asc
@@ -207,6 +209,10 @@ _package() {
 
   # Used by mkinitcpio to name the kernel
   echo "$pkgbase" | install -Dm644 /dev/stdin "$modulesdir/pkgbase"
+
+  # The installer may enable this unit after validating the target system.
+  install -Dm644 "$srcdir/amd-pstate-epp-boost.service" \
+    "$pkgdir/usr/lib/systemd/system/amd-pstate-epp-boost.service"
 
   echo "Installing modules..."
   ZSTD_CLEVEL=19 make LLVM=1 INSTALL_MOD_PATH="$pkgdir/usr" INSTALL_MOD_STRIP=1 \
