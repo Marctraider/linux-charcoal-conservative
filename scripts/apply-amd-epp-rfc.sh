@@ -64,7 +64,40 @@ for n in 2 3 4; do
   file="$PATCH_DIR/$n.patch"
   subject="$(sed -n 's/^Subject: //p' "$file" | head -n1 | sed -E 's/^\[RFC PATCH [0-9]+\/4\] //')"
   echo "Preflighting RFC patch $n/4: $subject"
-  if [[ "$n" == "3" ]]; then
+  if [[ "$n" == "4" ]]; then
+    # The Valve documentation has diverged around the RFC's insertion line.
+    # Port the documentation section at a stable section boundary.
+    python3 - "$TREE/Documentation/admin-guide/pm/amd-pstate.rst" <<'PY'
+import pathlib, sys
+p = pathlib.Path(sys.argv[1])
+s = p.read_text()
+section = """Energy performance preference boosting
+======================================
+On MSR-based systems running in the ``active mode``, the driver can optionally
+bias the energy performance preference of a recently-busy CPU toward
+performance while leaving all other CPUs at the policy value.  C0 residency is
+sampled at most every 10 ms; while a CPU has been at least 50% busy within the
+last 300 ms, the EPP field of its CPPC request is set to ``performance`` (0).
+The policy value is restored once 300 ms pass without a busy sample.
+
+This behavior is disabled by default.  It can be enabled with the module
+parameter ``amd_pstate.epp_boost=1`` on the kernel command line, or at runtime
+by writing ``1`` to ``/sys/module/amd_pstate/parameters/epp_boost``.  The
+mechanism only runs while the parameter is enabled and has no overhead when
+disabled.  It has no effect in the ``passive`` and ``guided`` modes or on
+shared-memory (non-MSR) systems.
+
+"""
+anchor = "``amd-pstate`` vs ``acpi-cpufreq``\n======================================"
+if "Energy performance preference boosting" not in s:
+    assert s.count(anchor) == 1, "unexpected amd-pstate documentation section layout"
+    s = s.replace(anchor, section + anchor, 1)
+p.write_text(s)
+PY
+    git -C "$TREE" add Documentation/admin-guide/pm/amd-pstate.rst
+    git -C "$TREE" diff --cached --check
+    git -C "$TREE" commit -m "$subject" -m "Port RFC documentation to Valve 7.3.1-valve3 layout"
+  elif [[ "$n" == "3" ]]; then
     # Valve's amd-pstate.h has a different blob/layout from the RFC base.
     # Apply the amd-pstate.c diff with full context, then port the small
     # header additions using unique, verified anchors from the pinned tree.
