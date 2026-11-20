@@ -10,7 +10,7 @@ TREE="${1:?usage: $0 KERNEL_TREE}"
 TREE="$(realpath "$TREE")"
 TAG="7.3.1-valve3"
 MID="20260728073150.54964-"
-BASE="https://lore.kernel.org/lkml"
+BASES=("https://lore.kernel.org/linux-pm" "https://lore.kernel.org/linux-kernel" "https://lore.kernel.org/lkml")
 
 command -v curl >/dev/null || { echo "error: curl is required" >&2; exit 1; }
 command -v git >/dev/null || { echo "error: git is required" >&2; exit 1; }
@@ -31,8 +31,19 @@ trap 'rm -rf "$TMP"' EXIT
 for n in 2 3 4 5; do
   patch_no=$((n - 1))
   file="$TMP/$patch_no.patch"
-  url="$BASE/$MID$n-void@manifault.com/raw"
-  curl --fail --location --retry 3 --retry-all-errors --output "$file" "$url"
+  fetched=false
+  for base in "${BASES[@]}"; do
+    url="$base/$MID$n-void@manifault.com/raw"
+    if curl --fail --location --retry 2 --retry-all-errors --output "$file.part" "$url"; then
+      mv "$file.part" "$file"
+      fetched=true
+      break
+    fi
+  done
+  [[ "$fetched" == true ]] || {
+    echo "error: unable to retrieve RFC patch $patch_no/4 from lore.kernel.org" >&2
+    exit 1
+  }
   grep -Fq "Subject: [RFC PATCH $patch_no/4]" "$file" || {
     echo "error: unexpected message returned for RFC patch $patch_no/4" >&2
     exit 1
