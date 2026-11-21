@@ -61,7 +61,13 @@ require_y DEBUG_INFO_BTF
 echo "Starting LLVM kernel build with $JOBS jobs..."
 (
   cd "$TREE"
-  make LLVM=1 KCFLAGS="-march=znver2" -j"$JOBS" all
+  kbuild_flags=(LLVM=1 KCFLAGS="-march=znver2 -O2")
+  echo "Building built-in archive with $JOBS jobs..."
+  make "${kbuild_flags[@]}" -j"$JOBS" vmlinux.a
+  echo "Linking vmlinux.o with -j1..."
+  make "${kbuild_flags[@]}" -j1 vmlinux_o
+  echo "Resuming kernel build with $JOBS jobs..."
+  make "${kbuild_flags[@]}" -j"$JOBS" all
   make LLVM=1 -C tools/bpf/bpftool vmlinux.h feature-clang-bpf-co-re=1
 )
 
