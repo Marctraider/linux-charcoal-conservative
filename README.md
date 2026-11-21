@@ -35,3 +35,17 @@ The build starts from the vendored Valve base config and applies Valve Neptune, 
 ## Safety notes
 
 Disabling CPU vulnerability mitigations reduces security. A 4.2 GHz firmware/SMU limit is a requested ceiling, not a guarantee that the APU will sustain that frequency; firmware, voltage, temperature and shared CPU/GPU power limits still apply.
+
+## Steam Deck installer
+
+The prepared installer is `install-charcoal.sh`. It preserves Valve's `linux-neptune-73` package identity and installs the kernel and matching headers together, regenerates initramfs, updates GRUB, and attempts to restore the previously cached packages if installation fails. It does not reboot automatically.
+
+Release downloads are intentionally not configured until the official package assets and SHA-256 checksums are published. For now, supply the two locally available package files:
+
+```bash
+sudo bash install-charcoal.sh \\
+  --kernel /path/to/linux-neptune-73.pkg.tar.zst \\
+  --headers /path/to/linux-neptune-73-headers.pkg.tar.zst
+```
+
+Run `sudo bash install-charcoal.sh --check-only` for a Deck and boot-state preflight without installing packages. The installer requires SteamOS 3.10 and an existing Neptune preset, kernel image, and initramfs. The LAVD scheduler and persistent performance-profile integration are not enabled by this installer; the latter remains unverified as documented in `docs/PERFORMANCE_PROFILE.md`.
