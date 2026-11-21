@@ -61,6 +61,17 @@ if [[ -r "$epp_param" ]]; then
 else
   fail "AMD P-State epp_boost parameter is unavailable ($epp_param)"
 fi
+pstate_status=/sys/devices/system/cpu/amd_pstate/status
+if [[ -r "$pstate_status" ]]; then
+  pstate_mode="$(tr -d '[:space:]' < "$pstate_status")"
+  if [[ "$pstate_mode" == active ]]; then
+    pass 'AMD P-State driver is in active mode'
+  else
+    fail "AMD P-State driver mode is '$pstate_mode', expected active"
+  fi
+else
+  fail "AMD P-State status is unavailable ($pstate_status)"
+fi
 if command -v systemctl >/dev/null 2>&1; then
   if systemctl is-active --quiet amd-pstate-epp-boost.service; then
     pass 'amd-pstate-epp-boost.service is active'
@@ -79,7 +90,7 @@ fi
 # The Van Gogh soft maximum is expected to be 4200 MHz (4200000 kHz).
 shopt -s nullglob
 policies=(/sys/devices/system/cpu/cpufreq/policy*)
-if (("${#policies[@]}" == 0)); then
+if (( ${#policies[@]} == 0 )); then
   fail 'No CPU cpufreq policies found'
 else
   freq_bad=0
