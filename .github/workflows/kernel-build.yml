@@ -29,15 +29,29 @@ jobs:
           key: kernel-build-${{ runner.os }}-${{ hashFiles('PKGBUILD', 'config-*', 'patches/**', 'scripts/apply-amd-epp-rfc.sh') }}
           restore-keys: |
             kernel-build-${{ runner.os }}-
-      - name: Show runner disk and pull Arch build environment
+      - name: Reclaim disk space and configure runner swap
         run: |
-          # Reclaim preinstalled SDK space on the standard 14 GB runner.
+          # Reclaim preinstalled SDK space before allocating swap and building.
           sudo rm -rf /usr/local/lib/android /usr/share/dotnet /opt/ghc \
             /usr/local/share/boost /usr/local/share/powershell \
             /usr/local/share/chromium /usr/local/lib/node_modules \
             /opt/hostedtoolcache/CodeQL
           sudo apt-get clean
           docker system prune --all --force
+
+          # Full LTO's vmlinux.o link has a high peak-memory requirement.
+          # Add explicit host swap; Docker shares the runner's memory/swap.
+          if ! swapon --noheadings --show=NAME | grep -Fxq /swapfile; then
+            sudo fallocate -l 6G /swapfile
+            sudo chmod 600 /swapfile
+            sudo mkswap /swapfile
+            sudo swapon /swapfile
+          fi
+
+          echo "=== Runner memory and swap ==="
+          free -h
+          swapon --show
+          echo "=== Runner disk ==="
           df -h
           mkdir -p .cache/makepkg-sources .cache/ccache
           docker pull archlinux:base-devel
@@ -67,6 +81,12 @@ jobs:
               printf "builder ALL=(ALL:ALL) NOPASSWD: ALL\n" > /etc/sudoers.d/builder
               chmod 0440 /etc/sudoers.d/builder
               chown -R builder:builder /work
+              echo "=== Build container memory/swap limits ==="
+              free -h
+              cat /proc/meminfo | grep -E "^(MemTotal|MemAvailable|SwapTotal|SwapFree):"
+              for limit in /sys/fs/cgroup/memory.max /sys/fs/cgroup/memory.swap.max; do
+                if [[ -r "$limit" ]]; then printf "%s=" "$limit"; cat "$limit"; fi
+              done
               runuser -u builder -- env MAKEFLAGS="$MAKEFLAGS" CCACHE_DIR="$CCACHE_DIR" CC="$CC" CXX="$CXX" bash scripts/build-packages.sh
               ccache --show-stats
               shopt -s nullglob
@@ -80,7 +100,7 @@ jobs:
               [[ -n "$build_info_entry" ]]
               build_info="$(bsdtar -xOf "${kernel[0]}" "$build_info_entry")"
               grep -Fxq "compiler=clang" <<<"$build_info"
-              grep -Fxq "cflags=-march=znver2" <<<"$build_info"
+              grep -Fxq "cflags=-march=znver2 -O2" <<<"$build_info"
               grep -Fxq "lto=clang-full" <<<"$build_info"
               grep -Fxq "polly=enabled" <<<"$build_info"
               linkage_entry="$(bsdtar -tf "${kernel[0]}" | grep -E "^usr/lib/modules/[^/]+/charcoal-linkage-diff$" | head -n1)"
