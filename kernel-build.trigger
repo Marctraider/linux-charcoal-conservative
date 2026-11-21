@@ -15,3 +15,4 @@ Retry with three-way application for RFC patches 2-4.
 Run full kernel, headers, and LAVD package build after successful AMD EPP RFC preflight on Valve 7.3.1-valve3.
 Run full kernel, headers, and LAVD package build with the minimal direct AMD Zen 2 compiler target.
 Run full kernel, headers, and LAVD package build with the minimal direct AMD Zen 2 compiler target.
+checksum-fix-2026-11-21
