@@ -61,6 +61,7 @@ source=(
   config-neptune
   config-charcoal
   "clang-polly.patch::file://$PWD/patches/clang-polly.patch"
+  "serialize-vmlinux-o-link.patch::file://$PWD/patches/serialize-vmlinux-o-link.patch"
   "vangogh_allow_higher_cpu_freq.patch::file://$PWD/patches/vangogh_allow_higher_cpu_freq.patch"
   "amd-pstate-epp-boost.service::file://$PWD/systemd/amd-pstate-epp-boost.service"
 )
@@ -71,6 +72,7 @@ sha256sums=(
   'd88eaf0f94bae470040e4882f334c05b1bb2ab0a99e4b7299aa0b2337810ab8d'
   '7804e2f341c7b1a827b61075e4fb772ae05a518c16d16fc8585b94fa53d2fc3b'
   '2b09de51a50820647fe3c5b6947da8089a3d341ca6e76f689d994581a80a186b'
+  '5693b07924a43a34503d89f7d727095b42db9a50fef269e5716a4c6eb00e67af'
   'bed9736aaf79003ed6a979540f4cc77bce0d6429faf388d4d6d40d797605658a'
   'd0fc67545dcf738fa69853c43ceab858bc2f87cf5910ae1755c7092679ee3562'
 )
@@ -106,6 +108,16 @@ prepare() {
   echo "Setting version..."
   echo "-$pkgrel" > localversion.10-pkgrel
   echo "${pkgbase#linux}" > localversion.20-pkgname
+
+  echo "Applying single-threaded vmlinux.o linker patch..."
+  if ! grep -Fq '$(LD) ${KBUILD_LDFLAGS} --threads=1 -r -o $@' scripts/Makefile.vmlinux_o; then
+    patch --dry-run -Np1 < ../serialize-vmlinux-o-link.patch
+    patch -Np1 < ../serialize-vmlinux-o-link.patch
+  fi
+  grep -Fq '$(LD) ${KBUILD_LDFLAGS} --threads=1 -r -o $@' scripts/Makefile.vmlinux_o || {
+    echo "error: vmlinux.o linker is not configured for --threads=1" >&2
+    exit 1
+  }
 
   echo "Applying Polly and Van Gogh frequency patches..."
   if ! grep -Fq 'config POLLY_CLANG' init/Kconfig; then
