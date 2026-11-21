@@ -76,6 +76,13 @@ jobs:
               [[ ${#kernel[@]} -eq 1 && ${#headers[@]} -eq 1 && ${#lavd[@]} -eq 1 ]]
               bsdtar -tf "${kernel[0]}" | grep -Eq "^usr/lib/modules/[^/]+/vmlinuz$"
               bsdtar -tf "${kernel[0]}" | grep -Fq "amd-pstate-epp-boost.service"
+              build_info_entry="$(bsdtar -tf "${kernel[0]}" | grep -E "^usr/lib/modules/[^/]+/charcoal-build-info$" | head -n1)"
+              [[ -n "$build_info_entry" ]]
+              build_info="$(bsdtar -xOf "${kernel[0]}" "$build_info_entry")"
+              grep -Fxq "compiler=clang" <<<"$build_info"
+              grep -Fxq "cflags=-march=znver2" <<<"$build_info"
+              grep -Fxq "lto=clang-full" <<<"$build_info"
+              grep -Fxq "polly=enabled" <<<"$build_info"
               bsdtar -tf "${headers[0]}" | grep -Eq "^usr/lib/modules/[^/]+/build/.config$"
               config_entry="$(bsdtar -tf "${headers[0]}" | grep -E "^usr/lib/modules/[^/]+/build/.config$" | head -n1)"
               bsdtar -xOf "${headers[0]}" "$config_entry" | grep -Fxq "# CONFIG_CPU_MITIGATIONS is not set"
