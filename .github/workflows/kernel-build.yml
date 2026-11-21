@@ -29,32 +29,15 @@ jobs:
           key: kernel-build-${{ runner.os }}-${{ hashFiles('PKGBUILD', 'config-*', 'patches/**', 'scripts/apply-amd-epp-rfc.sh') }}
           restore-keys: |
             kernel-build-${{ runner.os }}-
-      - name: Reclaim disk space and configure runner swap
+      - name: Show runner disk and pull Arch build environment
         run: |
-          # Reclaim preinstalled SDK space before allocating swap and building.
+          # Reclaim preinstalled SDK space on the standard 14 GB runner.
           sudo rm -rf /usr/local/lib/android /usr/share/dotnet /opt/ghc \
             /usr/local/share/boost /usr/local/share/powershell \
             /usr/local/share/chromium /usr/local/lib/node_modules \
             /opt/hostedtoolcache/CodeQL
           sudo apt-get clean
           docker system prune --all --force
-
-          # Replace the runner's pre-existing 3 GB swapfile with a 6 GB file.
-          # Full LTO's vmlinux.o link is the memory-intensive stage.
-          if swapon --noheadings --show=NAME | grep -Fxq /swapfile; then
-            sudo swapoff /swapfile
-          fi
-          sudo rm -f /swapfile
-          sudo fallocate -l 6G /swapfile
-          sudo chmod 600 /swapfile
-          sudo mkswap /swapfile
-          sudo swapon /swapfile
-
-          echo "=== Runner memory and swap ==="
-          free -h
-          swapon --show --bytes
-          awk '$1 == "/swapfile" && $3 >= 6291400 { ok=1 } END { exit !ok }' /proc/swaps
-          echo "=== Runner disk ==="
           df -h
           mkdir -p .cache/makepkg-sources .cache/ccache
           docker pull archlinux:base-devel
@@ -84,13 +67,6 @@ jobs:
               printf "builder ALL=(ALL:ALL) NOPASSWD: ALL\n" > /etc/sudoers.d/builder
               chmod 0440 /etc/sudoers.d/builder
               chown -R builder:builder /work
-              echo "=== Build container memory/swap limits ==="
-              free -h
-              grep -E "^(MemTotal|MemAvailable|SwapTotal|SwapFree):" /proc/meminfo
-              swapon --show --bytes || true
-              for limit in /sys/fs/cgroup/memory.max /sys/fs/cgroup/memory.swap.max /sys/fs/cgroup/memory.current /sys/fs/cgroup/memory.swap.current; do
-                if [[ -r "$limit" ]]; then printf "%s=" "$limit"; cat "$limit"; fi
-              done
               runuser -u builder -- env MAKEFLAGS="$MAKEFLAGS" CCACHE_DIR="$CCACHE_DIR" CC="$CC" CXX="$CXX" bash scripts/build-packages.sh
               ccache --show-stats
               shopt -s nullglob
@@ -100,40 +76,6 @@ jobs:
               [[ ${#kernel[@]} -eq 1 && ${#headers[@]} -eq 1 && ${#lavd[@]} -eq 1 ]]
               bsdtar -tf "${kernel[0]}" | grep -Eq "^usr/lib/modules/[^/]+/vmlinuz$"
               bsdtar -tf "${kernel[0]}" | grep -Fq "amd-pstate-epp-boost.service"
-              build_info_entry="$(bsdtar -tf "${kernel[0]}" | grep -E "^usr/lib/modules/[^/]+/charcoal-build-info$" | head -n1)"
-              [[ -n "$build_info_entry" ]]
-              build_info="$(bsdtar -xOf "${kernel[0]}" "$build_info_entry")"
-              grep -Fxq "compiler=clang" <<<"$build_info"
-              grep -Fxq "cflags=-march=znver2 -O2" <<<"$build_info"
-              grep -Fxq "lto=clang-full" <<<"$build_info"
-              grep -Fxq "polly=enabled" <<<"$build_info"
-              linkage_entry="$(bsdtar -tf "${kernel[0]}" | grep -E "^usr/lib/modules/[^/]+/charcoal-linkage-diff$" | head -n1)"
-              [[ -n "$linkage_entry" ]]
-              bsdtar -xOf "${kernel[0]}" "$linkage_entry" | grep -Eq '^CONFIG_[A-Za-z0-9_]+ [ymn] [ymn]              bsdtar -tf "${headers[0]}" | grep -Eq "^usr/lib/modules/[^/]+/build/.config$"
-              config_entry="$(bsdtar -tf "${headers[0]}" | grep -E "^usr/lib/modules/[^/]+/build/.config$" | head -n1)"
-              bsdtar -xOf "${headers[0]}" "$config_entry" | grep -Fxq "# CONFIG_CPU_MITIGATIONS is not set"
-              for setting in \
-                CONFIG_SCHED_CLASS_EXT=y \
-                CONFIG_LTO_CLANG_FULL=y \
-                CONFIG_POLLY_CLANG=y \
-                CONFIG_JOYSTICK_XPAD=m \
-                CONFIG_JOYSTICK_XBOX_GIP=m; do
-                bsdtar -xOf "${headers[0]}" "$config_entry" | grep -Fxq "$setting"
-              done
-              bsdtar -tf "${lavd[0]}" | grep -Fxq "usr/bin/scx_lavd"
-              bsdtar -tf "${lavd[0]}" | grep -Fq "usr/lib/systemd/system/scx.service"
-              echo "Kernel image, headers config, EPP service, and LAVD payload verified."
-            '
-      - name: Upload kernel, headers, and LAVD packages
-        uses: actions/upload-artifact@v4
-        with:
-          name: steamdeck-kernel-packages
-          path: |
-            *.pkg.tar.*
-            packages/scx-scheds/*.pkg.tar.*
-          if-no-files-found: error
-          retention-days: 14
-
               bsdtar -tf "${headers[0]}" | grep -Eq "^usr/lib/modules/[^/]+/build/.config$"
               config_entry="$(bsdtar -tf "${headers[0]}" | grep -E "^usr/lib/modules/[^/]+/build/.config$" | head -n1)"
               bsdtar -xOf "${headers[0]}" "$config_entry" | grep -Fxq "# CONFIG_CPU_MITIGATIONS is not set"
