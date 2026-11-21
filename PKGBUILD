@@ -145,7 +145,7 @@ prepare() {
   # baseline. The runtime test uses this manifest to report all changed
   # built-in/module selections, rather than a hand-maintained feature list.
   {
-    printf '# CONFIG_SYMBOL valve_state charcoal_state\\n'
+    printf '# CONFIG_SYMBOL valve_state charcoal_state\n'
     awk '
       FNR == NR {
         if ($0 ~ /^CONFIG_[A-Za-z0-9_]+=*/) {
@@ -172,12 +172,12 @@ prepare() {
           if (valve[key] != charcoal[key] &&
               (valve[key] == "y" || valve[key] == "m" ||
                charcoal[key] == "y" || charcoal[key] == "m"))
-            printf "%s %s %s\\n", key, valve[key], charcoal[key]
+            printf "%s %s %s\n", key, valve[key], charcoal[key]
         }
         for (key in charcoal) {
           if (!(key in valve) &&
               (charcoal[key] == "y" || charcoal[key] == "m"))
-            printf "%s n %s\\n", key, charcoal[key]
+            printf "%s n %s\n", key, charcoal[key]
         }
       }
     ' "$baseline_config" .config | sort
@@ -258,6 +258,9 @@ cflags=-march=znver2
 lto=clang-full
 polly=enabled
 BUILDINFO
+
+  install -Dm644 "$srcdir/charcoal-linkage-diff" \
+    "$modulesdir/charcoal-linkage-diff"
 
   echo "Installing boot image..."
   # systemd expects to find the kernel here to allow hibernation
