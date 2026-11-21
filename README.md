@@ -13,7 +13,7 @@ A Steam Deck kernel project based on Valve's SteamOS/Neptune kernel configuratio
 - Van Gogh SMU CPU soft maximum changed from 3500 MHz to 4200 MHz.
 - AMD per-core EPP boost, ported from the requested upstream RFC only after checking applicability to the pinned kernel revision.
 - `CONFIG_SCHED_CLASS_EXT=y` and SteamOS `scx-scheds` 1.1.3.linux.steamos.2-2 userspace package (`packages/scx-scheds/PKGBUILD`), pending runtime validation.
-- Installer replaces the Valve Neptune kernel package, installs the LAVD userspace package, and enables `scx_lavd --performance` through the packaged `scx.service`. SteamOS UI performance-profile persistence is a separate, unverified feature.
+- Installer replaces the Valve Neptune kernel package, installs the LAVD userspace package, and enables `scx_lavd --performance` through the packaged `scx.service`. 
 
 ## Current status
 
@@ -38,7 +38,7 @@ Disabling CPU vulnerability mitigations reduces security. A 4.2 GHz firmware/SMU
 
 ## Steam Deck installer
 
-The prepared installer is `install-charcoal.sh`. It preserves Valve's `linux-neptune-73` package identity and installs the kernel, matching headers, and the `scx-scheds` LAVD userspace package together. It configures `scx.service` to run `scx_lavd --performance` and enables that service at boot. If the currently running kernel does not expose sched_ext, service startup is deferred until after reboot into the new kernel. The installer regenerates initramfs, updates GRUB, verifies boot files, attempts cached-package rollback on failure, and does not reboot automatically.
+The prepared installer is `install-charcoal.sh`. It preserves Valve's `linux-neptune-73` package identity and installs the kernel, matching headers, and the `scx-scheds` LAVD userspace package together. It configures `scx.service` to run `scx_lavd --performance` and enables that service at boot. If the currently running kernel does not expose sched_ext, service startup is deferred until after reboot into the new kernel. The installer regenerates initramfs, updates GRUB, verifies boot files, attempts cached-package rollback on failure, and does not reboot automatically. `test-runtime.sh` is a separate read-only runtime check for disabled CPU mitigations, AMD per-core EPP boost, the 4200 MHz CPU policy ceiling, and active LAVD `--performance` scheduling.
 
 Release downloads are intentionally not configured until the official package assets and SHA-256 checksums are published. For now, supply all three local package files:
 
@@ -50,5 +50,3 @@ sudo bash install-charcoal.sh \
 ```
 
 Run `sudo bash install-charcoal.sh --check-only` for a Deck and boot-state preflight without installing packages. Add all three package paths with `--check-only` to validate their identities and matching kernel/header metadata too. The installer requires SteamOS 3.10 and an existing Neptune preset, kernel image, and initramfs.
-
-The LAVD `--performance` option selects LAVD's performance-oriented scheduling mode. It is separate from SteamOS's UI power/performance profile. No unverified SteamOS Manager profile persistence or system-wide performance-profile override is configured.
