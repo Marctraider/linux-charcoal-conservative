@@ -18,3 +18,4 @@ Run full kernel, headers, and LAVD package build with the minimal direct AMD Zen
 checksum-fix-2026-11-21
 Retry build with Polly patch ported to Valve 7.3.1 source context.
 Re-run after correcting Polly unified-diff hunk length and checksum.
+Rebuild after correcting clang-polly.patch SHA-256.
