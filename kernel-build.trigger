@@ -32,3 +32,4 @@ Build after Kconfig and Pacman keyring validation fixes
 Retry after Error 137 during Full LTO vmlinux.o link: serialize only vmlinux_o with -j1, retain -j2 elsewhere, and configure/log 6 GB runner swap.
 
 Retry with corrected vmlinux_a archive target, -j1 vmlinux_o link, -j2 remaining build, and a verified 10 GB runner swap exposed to the build container.
+Retry after fixing the 10 GiB swap verification threshold; rebuild kernel packages.
