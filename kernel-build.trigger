@@ -22,3 +22,4 @@ Rebuild after correcting clang-polly.patch SHA-256.
 Clear the stale cached zero-byte clang-polly.patch before makepkg source validation.
 Start kernel build after verified clang-polly.patch checksum correction (2026-11-21).
 Build authorized after Polly patch hunk-count and checksum fix.
+Retry full kernel package build after correcting both Polly patch hunk counts and verifying the updated checksum against Valve 7.3.1-valve3.
