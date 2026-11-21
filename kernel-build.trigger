@@ -27,3 +27,4 @@ Retry kernel build with corrected Polly Kconfig hunk start line and matching SHA
 Run full kernel, headers, and LAVD package build after independently verifying every patch SHA-256 against PKGBUILD.
 Build after Kconfig anchor correction, source checksums rechecked.
 Rebuild after re-anchoring Van Gogh 4200 MHz patch and verifying its SHA-256 against PKGBUILD.
+Build after Kconfig and Pacman keyring validation fixes
