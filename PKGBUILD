@@ -195,6 +195,16 @@ _package() {
   cd $_srcname
   local modulesdir="$pkgdir/usr/lib/modules/$(<version)"
 
+  # Record the intended kernel compilation recipe alongside the installed image.
+  install -d "$modulesdir"
+  cat > "$modulesdir/charcoal-build-info" <<'BUILDINFO'
+compiler=clang
+llvm=1
+cflags=-march=znver2
+lto=clang-full
+polly=enabled
+BUILDINFO
+
   echo "Installing boot image..."
   # systemd expects to find the kernel here to allow hibernation
   # https://github.com/systemd/systemd/commit/edda44605f06a41fb86b7ab8128dcf99161d2344
