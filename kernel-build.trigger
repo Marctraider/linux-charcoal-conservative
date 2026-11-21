@@ -39,3 +39,5 @@ Run full kernel, headers, and LAVD build after correcting config-charcoal and si
 Retry full kernel build after correcting SHA-256 implementation and source checksums. Triggered 2026-11-21.
 
 Rebuild with sched_ext-compatible kernel BTF enabled, BTF modules disabled, and single-threaded ThinLTO linker; synchronize static checks.
+
+Rebuild after fixing config-charcoal SHA-256 and generating/installing the Valve-to-Charcoal linkage manifest; retain single-threaded ThinLTO.
