@@ -51,6 +51,8 @@ jobs:
             --env MAKEFLAGS="$MAKEFLAGS" \
             archlinux:base-devel \
             bash -euo pipefail -c '
+              pacman-key --init
+              pacman-key --populate archlinux
               pacman -Sy --noconfirm archlinux-keyring
               pacman -Syu --noconfirm --needed \
                 bc binutils cpio gettext glibc libelf libgcc openssl pahole perl \
@@ -76,8 +78,8 @@ jobs:
               bsdtar -tf "${kernel[0]}" | grep -Fq "amd-pstate-epp-boost.service"
               bsdtar -tf "${headers[0]}" | grep -Eq "^usr/lib/modules/[^/]+/build/.config$"
               config_entry="$(bsdtar -tf "${headers[0]}" | grep -E "^usr/lib/modules/[^/]+/build/.config$" | head -n1)"
+              bsdtar -xOf "${headers[0]}" "$config_entry" | grep -Fxq "# CONFIG_CPU_MITIGATIONS is not set"
               for setting in \
-                CONFIG_CPU_MITIGATIONS=n \
                 CONFIG_SCHED_CLASS_EXT=y \
                 CONFIG_LTO_CLANG_FULL=y \
                 CONFIG_POLLY_CLANG=y \
