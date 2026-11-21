@@ -125,13 +125,6 @@ prepare() {
     exit 1
   }
 
-  echo "Generating the stock Valve Neptune configuration baseline..."
-  baseline_config="$srcdir/config-valve-baseline"
-  cp ../config-valve-base "$baseline_config"
-  scripts/kconfig/merge_config.sh -m "$baseline_config" \
-    ../config-valve-neptune
-  make LLVM=1 KCONFIG_CONFIG="$baseline_config" olddefconfig
-
   echo "Merging Valve and Charcoal configurations..."
   cp ../config-valve-base .config
   scripts/kconfig/merge_config.sh -m .config \
@@ -139,52 +132,6 @@ prepare() {
     ../config-neptune \
     ../config-charcoal
   make LLVM=1 olddefconfig
-
-  # Save every y/m/n linkage-state change against the stock Valve Neptune
-  # baseline. The runtime test uses this manifest to report all changed
-  # built-in/module selections, rather than a hand-maintained feature list.
-  {
-    printf '# CONFIG_SYMBOL valve_state charcoal_state\n'
-    awk '
-      FNR == NR {
-        if ($0 ~ /^CONFIG_[A-Za-z0-9_]+=*/) {
-          key = $1; sub(/=.*/, "", key)
-          value = $0; sub(/^[^=]*=/, "", value)
-          valve[key] = value
-        } else if ($0 ~ /^# CONFIG_[A-Za-z0-9_]+ is not set$/) {
-          valve[$2] = "n"
-        }
-        next
-      }
-      {
-        if ($0 ~ /^CONFIG_[A-Za-z0-9_]+=*/) {
-          key = $1; sub(/=.*/, "", key)
-          value = $0; sub(/^[^=]*=/, "", value)
-          charcoal[key] = value
-        } else if ($0 ~ /^# CONFIG_[A-Za-z0-9_]+ is not set$/) {
-          charcoal[$2] = "n"
-        }
-      }
-      END {
-        for (key in valve) {
-          if (!(key in charcoal)) charcoal[key] = "n"
-          if (valve[key] != charcoal[key] &&
-              (valve[key] == "y" || valve[key] == "m" ||
-               charcoal[key] == "y" || charcoal[key] == "m"))
-            printf "%s %s %s\n", key, valve[key], charcoal[key]
-        }
-        for (key in charcoal) {
-          if (!(key in valve) &&
-              (charcoal[key] == "y" || charcoal[key] == "m"))
-            printf "%s n %s\n", key, charcoal[key]
-        }
-      }
-    ' "$baseline_config" .config | sort
-  } > "$srcdir/charcoal-linkage-diff"
-  test -s "$srcdir/charcoal-linkage-diff" || {
-    echo "error: generated Valve-to-Charcoal linkage manifest is empty" >&2
-    exit 1
-  }
   diff -u ../config-valve-base .config || :
 
   require_config() {
@@ -217,7 +164,7 @@ prepare() {
 
 build() {
   cd $_srcname
-  make LLVM=1 KCFLAGS="-march=znver2 -O2" all
+  make LLVM=1 KCFLAGS="-march=znver2" all
   make LLVM=1 -C tools/bpf/bpftool vmlinux.h feature-clang-bpf-co-re=1
 }
 
@@ -247,19 +194,6 @@ _package() {
 
   cd $_srcname
   local modulesdir="$pkgdir/usr/lib/modules/$(<version)"
-
-  # Record the intended kernel compilation recipe alongside the installed image.
-  install -d "$modulesdir"
-  cat > "$modulesdir/charcoal-build-info" <<'BUILDINFO'
-compiler=clang
-llvm=1
-cflags=-march=znver2 -O2
-lto=clang-full
-polly=enabled
-BUILDINFO
-
-  install -Dm644 "$srcdir/charcoal-linkage-diff" \
-    "$modulesdir/charcoal-linkage-diff"
 
   echo "Installing boot image..."
   # systemd expects to find the kernel here to allow hibernation
