@@ -1,6 +1,6 @@
 --- a/scripts/Makefile.vmlinux_o
 +++ b/scripts/Makefile.vmlinux_o
-@@ -60,7 +60,7 @@
+@@ -60,6 +60,6 @@
  quiet_cmd_ld_vmlinux.o = LD      $@
        cmd_ld_vmlinux.o = \
 -	$(LD) ${KBUILD_LDFLAGS} -r -o $@ \
