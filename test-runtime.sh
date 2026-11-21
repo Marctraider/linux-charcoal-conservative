@@ -87,10 +87,49 @@ else
   warn 'Charcoal build metadata marker not found; this kernel may predate the marker or not be this package'
 fi
 
-printf "\nSelected Steam Deck / LTO-related feature linkage:\n"
-for key in TLS INPUT_UINPUT SOUND SND SND_HRTIMER SND_SOC INPUT_JOYDEV INPUT_MOUSEDEV HID_GENERIC HID_MULTITOUCH RFKILL CRYPTO_AES_NI_INTEL BLK_DEV_NVME SPI_AMD EXT4_FS BTRFS_FS OVERLAY_FS VFAT_FS MMC MMC_SDHCI BT BT_RFCOMM I2C_CHARDEV SND_AMD_ACP_CONFIG CRYPTO_LZ4 CRYPTO_DEV_CCP_DD CRYPTO_DEV_CCP_CRYPTO HID_STEAM MFD_STEAMDECK LEDS_STEAMDECK SENSORS_STEAMDECK I2C_PIIX4 IIO LTRF216A MMC_BLOCK MMC_SDHCI_PCI POWER_SEQUENCING BT_HCIUART I2C_HID I2C_HID_ACPI SND_SOC_MAX98388 EXTCON_STEAMDECK SOUNDWIRE SOUNDWIRE_AMD SND_SOC_NAU8821 SND_SOC_SOF_PCI F2FS_FS LEDS_CLASS_MULTICOLOR LEDS_VALVE JOYSTICK_XPAD JOYSTICK_XBOX_GIP; do
-  printf "  %-32s %s\n" "CONFIG_$key" "$(config_state "$key")"
-done
+linkage_manifest="/usr/lib/modules/$(uname -r)/charcoal-linkage-diff"
+if [[ -r "$linkage_manifest" ]]; then
+  printf "\nValve baseline -> Charcoal linkage changes (all changed built-in/module selections):\n"
+  printf '  %-42s %-12s %-12s %-12s\n' 'Kernel option' 'Valve' 'Charcoal' 'Running'
+  linkage_mismatch=0
+  linkage_builtin=0
+  linkage_modules=0
+  linkage_changes=0
+  while read -r symbol valve_state charcoal_state; do
+    [[ -z "$symbol" || "$symbol" == \#* ]] && continue
+    key="${symbol#CONFIG_}"
+    actual_line="$(config_line "$key" || true)"
+    case "$actual_line" in
+      "CONFIG_${key}=y") actual_state=y ;;
+      "CONFIG_${key}=m") actual_state=m ;;
+      "CONFIG_${key}=n"|"# CONFIG_${key} is not set") actual_state=n ;;
+      *) actual_state=unknown ;;
+    esac
+    printf '  %-42s %-12s %-12s %-12s\n' "$symbol" "$valve_state" "$charcoal_state" "$actual_state"
+    linkage_changes=$((linkage_changes + 1))
+    [[ "$charcoal_state" == y ]] && linkage_builtin=$((linkage_builtin + 1))
+    [[ "$charcoal_state" == m ]] && linkage_modules=$((linkage_modules + 1))
+    if [[ "$actual_state" != unknown && "$actual_state" != "$charcoal_state" ]]; then
+      fail "$symbol running state is $actual_state; package expects $charcoal_state"
+      linkage_mismatch=1
+    fi
+  done < "$linkage_manifest"
+  printf '  Changed options: %d; Charcoal built-in: %d; Charcoal modules: %d\n' \
+    "$linkage_changes" "$linkage_builtin" "$linkage_modules"
+  if (( linkage_mismatch == 0 )); then
+    if [[ -n "$config_file" ]]; then
+      pass 'All Valve-to-Charcoal linkage changes match the running kernel config'
+    else
+      warn 'Linkage manifest is present, but running kernel config is unavailable for verification'
+    fi
+  fi
+else
+  warn 'Valve-to-Charcoal linkage manifest is unavailable; showing selected features only'
+  printf "\nSelected Steam Deck / LTO-related feature linkage:\n"
+  for key in TLS INPUT_UINPUT SOUND SND SND_HRTIMER SND_SOC INPUT_JOYDEV INPUT_MOUSEDEV HID_GENERIC HID_MULTITOUCH RFKILL CRYPTO_AES_NI_INTEL BLK_DEV_NVME SPI_AMD EXT4_FS BTRFS_FS OVERLAY_FS VFAT_FS MMC MMC_SDHCI BT BT_RFCOMM I2C_CHARDEV SND_AMD_ACP_CONFIG CRYPTO_LZ4 CRYPTO_DEV_CCP_DD CRYPTO_DEV_CCP_CRYPTO HID_STEAM MFD_STEAMDECK LEDS_STEAMDECK SENSORS_STEAMDECK I2C_PIIX4 IIO LTRF216A MMC_BLOCK MMC_SDHCI_PCI POWER_SEQUENCING BT_HCIUART I2C_HID I2C_HID_ACPI SND_SOC_MAX98388 EXTCON_STEAMDECK SOUNDWIRE SOUNDWIRE_AMD SND_SOC_NAU8821 SND_SOC_SOF_PCI F2FS_FS LEDS_CLASS_MULTICOLOR LEDS_VALVE JOYSTICK_XPAD JOYSTICK_XBOX_GIP; do
+    printf "  %-32s %s\n" "CONFIG_$key" "$(config_state "$key")"
+  done
+fi
 
 # CPU mitigations: verify the running kernel's actual build config.
 mitigation_config="$(read_config_value CPU_MITIGATIONS || true)"
