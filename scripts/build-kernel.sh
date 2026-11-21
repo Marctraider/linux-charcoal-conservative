@@ -50,7 +50,6 @@ require_y() {
 require_value CPU_MITIGATIONS n
 require_y SCHED_CLASS_EXT
 require_y X86_AMD_PSTATE
-require_y MZEN2
 require_y LTO_CLANG_FULL
 require_y POLLY_CLANG
 require_y BPF
@@ -62,7 +61,7 @@ require_y DEBUG_INFO_BTF
 echo "Starting LLVM kernel build with $JOBS jobs..."
 (
   cd "$TREE"
-  make LLVM=1 -j"$JOBS" all
+  make LLVM=1 KCFLAGS="-march=znver2" -j"$JOBS" all
   make LLVM=1 -C tools/bpf/bpftool vmlinux.h feature-clang-bpf-co-re=1
 )
 
