@@ -21,6 +21,7 @@ jobs:
           bash -n scripts/build-kernel.sh
           bash -n scripts/build-packages.sh
           bash -n install-charcoal.sh
+          bash -n test-runtime.sh
           bash -n packages/scx-scheds/PKGBUILD
       - name: Check requested config and package policy
         run: |
@@ -37,6 +38,10 @@ jobs:
           grep -Fq 'SCX_SCHEDULER=scx_lavd' install-charcoal.sh
           grep -Fq 'SCX_FLAGS=--performance' install-charcoal.sh
           grep -Fq 'systemctl enable scx.service' install-charcoal.sh
+          grep -Fq 'CONFIG_CPU_MITIGATIONS' test-runtime.sh
+          grep -Fq 'epp_boost' test-runtime.sh
+          grep -Fq '4200000' test-runtime.sh
+          grep -Fq -- '--performance' test-runtime.sh
           grep -Fq '09f66735e5b52023a44001d019ca19204cb5760b' packages/scx-scheds/PKGBUILD
           ! grep -Eiq 'ryzen_smu|xone|xpadneo|xpad-noone' PKGBUILD
           grep -Fxq 'CONFIG_CPU_MITIGATIONS=n' config-charcoal
