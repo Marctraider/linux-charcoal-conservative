@@ -37,3 +37,5 @@ Run full kernel build with --threads=1 and --thinlto-jobs=1; BTF and BTF modules
 Run full kernel, headers, and LAVD build after correcting config-charcoal and single-job ThinLTO linker patch SHA-256 checksums.
 
 Retry full kernel build after correcting SHA-256 implementation and source checksums. Triggered 2026-11-21.
+
+Rebuild with sched_ext-compatible kernel BTF enabled, BTF modules disabled, and single-threaded ThinLTO linker; synchronize static checks.
