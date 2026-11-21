@@ -53,7 +53,7 @@ fi
 epp_param=/sys/module/amd_pstate/parameters/epp_boost
 if [[ -r "$epp_param" ]]; then
   epp_value="$(tr -d '[:space:]' < "$epp_param")"
-  if [[ "$epp_value" == 1 ]]; then
+  if [[ "$epp_value" == 1 || "$epp_value" == Y || "$epp_value" == y || "$epp_value" == true ]]; then
     pass 'amd_pstate epp_boost runtime parameter is 1'
   else
     fail "amd_pstate epp_boost is '$epp_value', expected 1"
