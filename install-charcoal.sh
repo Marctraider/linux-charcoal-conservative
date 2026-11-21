@@ -55,7 +55,7 @@ cleanup() {
     [[ -n "$ROLLBACK_KERNEL" ]] && restore+=("$ROLLBACK_KERNEL")
     [[ -n "$ROLLBACK_HEADERS" ]] && restore+=("$ROLLBACK_HEADERS")
     [[ -n "$ROLLBACK_SCX" ]] && restore+=("$ROLLBACK_SCX")
-    if (("${#restore[@]}")); then
+    if (( ${#restore[@]} > 0 )); then
       pacman -U --noconfirm --overwrite='*' "${restore[@]}" || echo "WARNING: package rollback failed" >&2
     else
       echo "No cached previous packages were found; manual recovery may be required." >&2
