@@ -21,8 +21,29 @@ TRANSACTION_STARTED=0
 ROLLBACK_KERNEL=""
 ROLLBACK_HEADERS=""
 
+update_bootloader() {
+  if command -v steamos-update-grub >/dev/null; then
+    steamos-update-grub
+  elif command -v grub-mkconfig >/dev/null; then
+    grub-mkconfig -o /boot/grub/grub.cfg
+  else
+    update-grub
+  fi
+}
 cleanup() {
   local status=$?
+  if (( status != 0 && TRANSACTION_STARTED )); then
+    echo "Installation failed; attempting package rollback..." >&2
+    if [[ -n "$ROLLBACK_KERNEL" ]]; then
+      local args=("$ROLLBACK_KERNEL")
+      [[ -n "$ROLLBACK_HEADERS" ]] && args+=("$ROLLBACK_HEADERS")
+      pacman -U --noconfirm --overwrite='*' "${args[@]}" || echo "WARNING: package rollback failed" >&2
+      mkinitcpio -P || echo "WARNING: initramfs rollback regeneration failed" >&2
+      update_bootloader || echo "WARNING: GRUB rollback update failed" >&2
+    else
+      echo "No previous cached kernel package exists; manual recovery may be required." >&2
+    fi
+  fi
   if (( READONLY_DISABLED )); then
     steamos-readonly enable || echo "WARNING: could not re-enable SteamOS read-only mode" >&2
   fi
@@ -98,22 +119,27 @@ validate_package() {
   [[ "$version" != *-debug* ]] || die "debug package supplied instead of $expected"
   printf '%s\n' "$version"
 }
-kernel_version="$(validate_package "$KERNEL_PKG" "$KERNEL_NAME")"
-headers_version="$(validate_package "$HEADERS_PKG" "$HEADERS_NAME")"
-[[ "$kernel_version" == "$headers_version" ]] || die "kernel and headers versions differ ($kernel_version vs $headers_version)"
-
-# Verify package identity and module metadata before touching the installed system.
-kernel_listing="$(bsdtar -tf "$KERNEL_PKG")"
-grep -Eq '^usr/lib/modules/[^/]+/pkgbase$' <<<"$kernel_listing" || die "kernel package has no module pkgbase marker"
-pkgbase_path="$(grep -E '^usr/lib/modules/[^/]+/pkgbase$' <<<"$kernel_listing" | head -n1)"
-pkgbase_value="$(bsdtar -xOf "$KERNEL_PKG" "$pkgbase_path" | tr -d '\r\n')"
-[[ "$pkgbase_value" == "$PKGBASE" ]] || die "kernel module pkgbase is '$pkgbase_value', expected '$PKGBASE'"
-module_version="${pkgbase_path#usr/lib/modules/}"
-module_version="${module_version%/pkgbase}"
-grep -Fqx "usr/lib/modules/$module_version/build" <<<"$kernel_listing" || true
-headers_listing="$(bsdtar -tf "$HEADERS_PKG")"
-grep -Fq "usr/lib/modules/$module_version/build/" <<<"$headers_listing" || die "headers package does not match kernel module version $module_version"
-
+kernel_version=""
+headers_version=""
+module_version=""
+if [[ -n "$KERNEL_PKG" || -n "$HEADERS_PKG" ]]; then
+  [[ -n "$KERNEL_PKG" && -n "$HEADERS_PKG" ]] || die "supply both --kernel and --headers"
+  kernel_version="$(validate_package "$KERNEL_PKG" "$KERNEL_NAME")"
+  headers_version="$(validate_package "$HEADERS_PKG" "$HEADERS_NAME")"
+  [[ "$kernel_version" == "$headers_version" ]] || die "kernel and headers versions differ ($kernel_version vs $headers_version)"
+  kernel_listing="$(bsdtar -tf "$KERNEL_PKG")"
+  grep -Eq '^usr/lib/modules/[^/]+/pkgbase$' <<<"$kernel_listing" || die "kernel package has no module pkgbase marker"
+  pkgbase_path="$(grep -E '^usr/lib/modules/[^/]+/pkgbase$' <<<"$kernel_listing" | head -n1)"
+  pkgbase_value="$(bsdtar -xOf "$KERNEL_PKG" "$pkgbase_path" | tr -d '\r\n')"
+  [[ "$pkgbase_value" == "$PKGBASE" ]] || die "kernel module pkgbase is '$pkgbase_value', expected '$PKGBASE'"
+  module_version="${pkgbase_path#usr/lib/modules/}"
+  module_version="${module_version%/pkgbase}"
+  headers_listing="$(bsdtar -tf "$HEADERS_PKG")"
+  grep -Fq "usr/lib/modules/$module_version/build/" <<<"$headers_listing" || die "headers package does not match kernel module version $module_version"
+fi
+if (( ! CHECK_ONLY )); then
+  [[ -n "$KERNEL_PKG" && -n "$HEADERS_PKG" ]] || die "both --kernel and --headers are required"
+fi
 current_kernel="$(installed_version "$KERNEL_NAME")"
 current_headers="$(installed_version "$HEADERS_NAME")"
 if [[ -n "$current_kernel" ]]; then
@@ -125,7 +151,7 @@ if [[ -n "$current_headers" ]]; then
   [[ -n "$ROLLBACK_HEADERS" ]] || die "no cached copy of installed $HEADERS_NAME $current_headers; refusing an upgrade without rollback"
 fi
 
-log "SteamOS ${VERSION_ID}; target kernel $kernel_version; module tree $module_version"
+log "SteamOS ${VERSION_ID}; target kernel ${kernel_version:-not supplied}; module tree ${module_version:-not checked}"
 log "Installed kernel: ${current_kernel:-none}; headers: ${current_headers:-none}"
 log "Boot preset and existing boot files are present."
 if (( CHECK_ONLY )); then
