@@ -6,6 +6,9 @@ command -v makepkg >/dev/null || { echo "error: makepkg is required" >&2; exit 1
 [[ "$EUID" -ne 0 ]] || { echo "error: run makepkg as an unprivileged build user" >&2; exit 1; }
 
 cd "$ROOT"
+# SRCDEST is persistent across CI runs. Drop the stale local-file cache entry:
+# makepkg otherwise reuses it instead of reading patches/clang-polly.patch.
+rm -f "$ROOT/.cache/makepkg-sources/clang-polly.patch"
 makepkg --syncdeps --noconfirm
 
 cd "$ROOT/packages/scx-scheds"
