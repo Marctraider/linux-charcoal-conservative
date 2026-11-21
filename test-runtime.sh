@@ -80,7 +80,7 @@ build_info="/usr/lib/modules/$(uname -r)/charcoal-build-info"
 if [[ -r "$build_info" ]]; then
   printf "\nCharcoal build recipe metadata:\n"
   sed "s/^/  /" "$build_info"
-  for expected in "compiler=clang" "cflags=-march=znver2" "lto=clang-full" "polly=enabled"; do
+  for expected in "compiler=clang" "cflags=-march=znver2 -O2" "lto=clang-full" "polly=enabled"; do
     grep -Fxq "$expected" "$build_info" && pass "Build metadata: $expected" || fail "Build metadata missing: $expected"
   done
 else
