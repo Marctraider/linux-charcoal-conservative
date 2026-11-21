@@ -79,7 +79,6 @@ jobs:
               for setting in \
                 CONFIG_CPU_MITIGATIONS=n \
                 CONFIG_SCHED_CLASS_EXT=y \
-                CONFIG_MZEN2=y \
                 CONFIG_LTO_CLANG_FULL=y \
                 CONFIG_POLLY_CLANG=y \
                 CONFIG_JOYSTICK_XPAD=m \
