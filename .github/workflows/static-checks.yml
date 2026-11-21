@@ -25,6 +25,9 @@ jobs:
           grep -Fq 'LTO_CLANG_FULL' test-runtime.sh
           grep -Fq 'POLLY_CLANG' test-runtime.sh
           grep -Fq 'cflags=-march=znver2' test-runtime.sh
+          grep -Fq 'charcoal-linkage-diff' test-runtime.sh
+          grep -Fq 'charcoal-linkage-diff' PKGBUILD
+          grep -Fq 'config-valve-baseline' PKGBUILD
           bash -n packages/scx-scheds/PKGBUILD
       - name: Check requested config and package policy
         run: |
