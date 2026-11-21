@@ -246,4 +246,7 @@ pacman -Q "$KERNEL_NAME" "$HEADERS_NAME" "$SCX_NAME" || die "installed package v
 
 TRANSACTION_STARTED=0
 log "Installation completed; LAVD is configured with --performance and enabled at boot."
-echo "Installation completed. LAVD is configured for --performance. Reboot manually when ready."
+echo "Installation completed. LAVD is configured for --performance."
+echo "Reboot manually when ready. After booting into the new kernel, run:"
+echo "  bash test-runtime.sh"
+echo "This read-only script checks the running kernel configuration, EPP boost, CPU frequency limit, and LAVD scheduler."
