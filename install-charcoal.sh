@@ -60,6 +60,9 @@ cleanup() {
     else
       echo "No cached previous packages were found; manual recovery may be required." >&2
     fi
+    if [[ -z "$current_headers" ]]; then
+      pacman -R --noconfirm "$HEADERS_NAME" >/dev/null 2>&1 || true
+    fi
     if [[ -z "$current_scx" ]]; then
       pacman -R --noconfirm "$SCX_NAME" >/dev/null 2>&1 || true
     fi
