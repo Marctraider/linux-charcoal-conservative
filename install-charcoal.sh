@@ -163,7 +163,7 @@ if [[ -n "$KERNEL_PKG" || -n "$HEADERS_PKG" || -n "$SCX_PKG" ]]; then
   module_version="${pkgbase_path#usr/lib/modules/}"
   module_version="${module_version%/pkgbase}"
   headers_listing="$(bsdtar -tf "$HEADERS_PKG")"
-  grep -Eq "^usr/lib/modules/$module_version(/|$)" <<<"$headers_listing" || die "headers package does not contain module tree $module_version"
+  grep -Fq "usr/lib/modules/$module_version/" <<<"$headers_listing" || die "headers package does not contain module tree $module_version"
 
   scx_version="$(validate_package "$SCX_PKG" "$SCX_NAME")"
   scx_listing="$(bsdtar -tf "$SCX_PKG")"
