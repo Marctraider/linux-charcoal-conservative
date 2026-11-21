@@ -29,7 +29,7 @@ diff --git a/Makefile b/Makefile
 diff --git a/init/Kconfig b/init/Kconfig
 --- a/init/Kconfig
 +++ b/init/Kconfig
-@@ -318,11 +318,23 @@ config BUILD_SALT
+@@ -318,11 +318,24 @@ config BUILD_SALT
  	string "Build ID Salt"
  	default ""
  	help
