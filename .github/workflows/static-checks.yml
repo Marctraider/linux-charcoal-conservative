@@ -53,7 +53,7 @@ jobs:
           grep -Fxq 'CONFIG_CPU_MITIGATIONS=n' config-charcoal
           grep -Fxq 'CONFIG_SCHED_CLASS_EXT=y' config-charcoal
           grep -Fxq 'CONFIG_DEBUG_INFO_BTF=y' config-charcoal
-          grep -Fxq '# CONFIG_DEBUG_INFO_BTF_MODULES is not set' config-charcoal
+          grep -Fxq 'CONFIG_DEBUG_INFO_BTF_MODULES=n' config-charcoal
           grep -Fxq 'CONFIG_LTO_CLANG_FULL=y' config-charcoal
           grep -Fxq 'CONFIG_POLLY_CLANG=y' config-charcoal
           grep -Fq 'KCFLAGS="-march=znver2 -O2"' PKGBUILD
