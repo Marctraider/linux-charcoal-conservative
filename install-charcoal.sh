@@ -11,7 +11,7 @@ readonly PRESET="/etc/mkinitcpio.d/linux-neptune-73.preset"
 readonly VMLINUZ="/boot/vmlinuz-linux-neptune-73"
 readonly INITRAMFS="/boot/initramfs-linux-neptune-73.img"
 readonly WORKDIR="$(mktemp -d -t charcoal-installer.XXXXXX)"
-readonly LOG="/var/log/charcoal-conservative-installer.log"
+readonly LOG="/tmp/charcoal-conservative-installer.log"
 
 KERNEL_PKG=""
 HEADERS_PKG=""
@@ -90,8 +90,8 @@ source /etc/os-release
 [[ "${VERSION_ID:-}" == 3.10* ]] || die "SteamOS 3.10 is required (detected ${VERSION_ID:-unknown})"
 [[ "$(uname -m)" == x86_64 ]] || die "Steam Deck x86_64 userspace is required"
 
-for cmd in bsdtar pacman-query mkinitcpio; do
-  if [[ $cmd == pacman-query ]]; then command -v pacman >/dev/null || die "pacman missing"; else command -v "$cmd" >/dev/null || die "$cmd not found"; fi
+for cmd in bsdtar mkinitcpio; do
+  command -v "$cmd" >/dev/null || die "$cmd not found"
 done
 
 [[ -f "$PRESET" ]] || die "expected mkinitcpio preset missing: $PRESET"
@@ -135,7 +135,7 @@ if [[ -n "$KERNEL_PKG" || -n "$HEADERS_PKG" ]]; then
   module_version="${pkgbase_path#usr/lib/modules/}"
   module_version="${module_version%/pkgbase}"
   headers_listing="$(bsdtar -tf "$HEADERS_PKG")"
-  grep -Fq "usr/lib/modules/$module_version/build/" <<<"$headers_listing" || die "headers package does not match kernel module version $module_version"
+  grep -Eq "^usr/lib/modules/$module_version(/|$)" <<<"$headers_listing" || die "headers package does not contain module tree $module_version"
 fi
 if (( ! CHECK_ONLY )); then
   [[ -n "$KERNEL_PKG" && -n "$HEADERS_PKG" ]] || die "both --kernel and --headers are required"
