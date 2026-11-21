@@ -129,8 +129,7 @@ prepare() {
   baseline_config="$srcdir/config-valve-baseline"
   cp ../config-valve-base "$baseline_config"
   scripts/kconfig/merge_config.sh -m "$baseline_config" \
-    ../config-valve-neptune \
-    ../config-neptune
+    ../config-valve-neptune
   make LLVM=1 KCONFIG_CONFIG="$baseline_config" olddefconfig
 
   echo "Merging Valve and Charcoal configurations..."
