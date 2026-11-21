@@ -4,7 +4,7 @@
  quiet_cmd_ld_vmlinux.o = LD      $@
        cmd_ld_vmlinux.o = \
 -	$(LD) ${KBUILD_LDFLAGS} -r -o $@ \
-+	$(LD) ${KBUILD_LDFLAGS} --threads=1 -r -o $@ \
++	$(LD) ${KBUILD_LDFLAGS} --threads=1 --thinlto-jobs=1 -r -o $@ \
  	$(vmlinux-o-ld-args-y) \
  	$(addprefix -T , $(initcalls-lds)) \
  	--whole-archive vmlinux.a --no-whole-archive \
