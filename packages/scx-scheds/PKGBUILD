@@ -16,7 +16,7 @@ makedepends=('git' 'openssh' 'python' 'clang' 'llvm' 'llvm-libs' 'rust' 'cargo' 
 backup=('etc/default/scx' 'etc/systemd/journald@sched-ext.conf')
 source=("git+https://github.com/evlav/scx.git#tag=v$pkgver")
 sha256sums=('75ba7bfb870134009446fc8e286d0d2b99d9102f4c081c246eb87c2363e132b9')
-options=(!lto)
+options=(!lto !debug !strip)
 provides=("scx-scheds=$pkgver")
 conflicts=(
   "scx-scheds-git"
