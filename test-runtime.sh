@@ -27,6 +27,70 @@ read_config_value() {
 
 printf 'Charcoal Conservative runtime check\n'
 printf 'Kernel: %s\n\n' "$(uname -r)"
+config_file=""
+if [[ -r /proc/config.gz ]] && command -v zcat >/dev/null 2>&1; then
+  config_file=/proc/config.gz
+elif [[ -r "/boot/config-$(uname -r)" ]]; then
+  config_file="/boot/config-$(uname -r)"
+elif [[ -r "/usr/lib/modules/$(uname -r)/build/.config" ]]; then
+  config_file="/usr/lib/modules/$(uname -r)/build/.config"
+fi
+
+config_line() {
+  local key="$1"
+  if [[ "$config_file" == /proc/config.gz ]]; then
+    zcat "$config_file" 2>/dev/null | grep -E "^(CONFIG_${key}=|# CONFIG_${key} is not set)$" | tail -n1
+  elif [[ -n "$config_file" ]]; then
+    grep -E "^(CONFIG_${key}=|# CONFIG_${key} is not set)$" "$config_file" | tail -n1
+  fi
+}
+
+config_state() {
+  local key="$1" line
+  line="$(config_line "$key" || true)"
+  case "$line" in
+    "CONFIG_${key}=y") printf "built-in (=y)" ;;
+    "CONFIG_${key}=m") printf "module (=m)" ;;
+    "CONFIG_${key}=n"|"# CONFIG_${key} is not set") printf "disabled" ;;
+    "") printf "unknown (config unavailable)" ;;
+    *) printf "%s" "$line" ;;
+  esac
+}
+
+printf "\nBuild configuration:\n"
+if [[ -z "$config_file" ]]; then
+  warn 'Running kernel config is unavailable; cannot verify compiler/LTO/Polly settings'
+else
+  printf "  Config source: %s\n" "$config_file"
+  for key in CC_IS_CLANG LTO_CLANG LTO_CLANG_FULL POLLY_CLANG; do
+    printf "  %-20s %s\n" "CONFIG_$key" "$(config_state "$key")"
+  done
+  for key in CC_IS_CLANG LTO_CLANG_FULL POLLY_CLANG; do
+    line="$(config_line "$key" || true)"
+    if [[ "$line" == "CONFIG_${key}=y" ]]; then
+      pass "CONFIG_$key is enabled"
+    else
+      fail "CONFIG_$key is not enabled (found: ${line:-unknown})"
+    fi
+  done
+fi
+
+# This marker records the package build recipe; it is not independent binary introspection.
+build_info="/usr/lib/modules/$(uname -r)/charcoal-build-info"
+if [[ -r "$build_info" ]]; then
+  printf "\nCharcoal build recipe metadata:\n"
+  sed "s/^/  /" "$build_info"
+  for expected in "compiler=clang" "cflags=-march=znver2" "lto=clang-full" "polly=enabled"; do
+    grep -Fxq "$expected" "$build_info" && pass "Build metadata: $expected" || fail "Build metadata missing: $expected"
+  done
+else
+  warn 'Charcoal build metadata marker not found; this kernel may predate the marker or not be this package'
+fi
+
+printf "\nSelected Steam Deck / LTO-related feature linkage:\n"
+for key in TLS INPUT_UINPUT SOUND SND SND_HRTIMER SND_SOC INPUT_JOYDEV INPUT_MOUSEDEV HID_GENERIC HID_MULTITOUCH RFKILL CRYPTO_AES_NI_INTEL BLK_DEV_NVME SPI_AMD EXT4_FS BTRFS_FS OVERLAY_FS VFAT_FS MMC MMC_SDHCI BT BT_RFCOMM I2C_CHARDEV SND_AMD_ACP_CONFIG CRYPTO_LZ4 CRYPTO_DEV_CCP_DD CRYPTO_DEV_CCP_CRYPTO HID_STEAM MFD_STEAMDECK LEDS_STEAMDECK SENSORS_STEAMDECK I2C_PIIX4 IIO LTRF216A MMC_BLOCK MMC_SDHCI_PCI POWER_SEQUENCING BT_HCIUART I2C_HID I2C_HID_ACPI SND_SOC_MAX98388 EXTCON_STEAMDECK SOUNDWIRE SOUNDWIRE_AMD SND_SOC_NAU8821 SND_SOC_SOF_PCI F2FS_FS LEDS_CLASS_MULTICOLOR LEDS_VALVE JOYSTICK_XPAD JOYSTICK_XBOX_GIP; do
+  printf "  %-32s %s\n" "CONFIG_$key" "$(config_state "$key")"
+done
 
 # CPU mitigations: verify the running kernel's actual build config.
 mitigation_config="$(read_config_value CPU_MITIGATIONS || true)"
