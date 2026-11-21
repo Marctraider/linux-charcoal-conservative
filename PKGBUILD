@@ -146,6 +146,33 @@ prepare() {
   make LLVM=1 olddefconfig
   diff -u ../config-valve-base .config || :
 
+  # Record only changed Kconfig linkage selections for runtime verification.
+  awk '
+    function record(line, target,   symbol, state) {
+      if (line ~ /^CONFIG_[A-Za-z0-9_]+=([ym])$/) {
+        symbol=line
+        sub(/=.*/, "", symbol)
+        state=line
+        sub(/^.*=/, "", state)
+        target[symbol]=state
+      } else if (line ~ /^# CONFIG_[A-Za-z0-9_]+ is not set$/) {
+        symbol=line
+        sub(/^# /, "", symbol)
+        sub(/ is not set$/, "", symbol)
+        target[symbol]="n"
+      }
+    }
+    FNR==NR { record($0, valve); next }
+    { record($0, charcoal) }
+    END {
+      for (symbol in valve) {
+        if ((symbol in charcoal) && valve[symbol] != charcoal[symbol] &&
+            (valve[symbol] != "n" || charcoal[symbol] != "n"))
+          printf "%s %s %s\\n", symbol, valve[symbol], charcoal[symbol]
+      }
+    }
+  ' ../config-valve-base .config | sort > "$srcdir/charcoal-linkage-diff"
+
   require_config() {
     grep -Fqx "$1" .config || {
       echo "error: required config missing: $1" >&2
@@ -213,6 +240,7 @@ _package() {
 
   # Used by mkinitcpio to name the kernel
   echo "$pkgbase" | install -Dm644 /dev/stdin "$modulesdir/pkgbase"
+  install -Dm644 "$srcdir/charcoal-linkage-diff" "$modulesdir/charcoal-linkage-diff"
 
   # The installer may enable this unit after validating the target system.
   install -Dm644 "$srcdir/amd-pstate-epp-boost.service" \
