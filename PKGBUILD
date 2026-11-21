@@ -217,7 +217,7 @@ prepare() {
 
 build() {
   cd $_srcname
-  make LLVM=1 KCFLAGS="-march=znver2" all
+  make LLVM=1 KCFLAGS="-march=znver2 -O2" all
   make LLVM=1 -C tools/bpf/bpftool vmlinux.h feature-clang-bpf-co-re=1
 }
 
@@ -253,7 +253,7 @@ _package() {
   cat > "$modulesdir/charcoal-build-info" <<'BUILDINFO'
 compiler=clang
 llvm=1
-cflags=-march=znver2
+cflags=-march=znver2 -O2
 lto=clang-full
 polly=enabled
 BUILDINFO
