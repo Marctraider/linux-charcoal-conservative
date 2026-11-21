@@ -30,3 +30,4 @@ Rebuild after re-anchoring Van Gogh 4200 MHz patch and verifying its SHA-256 aga
 Build after Kconfig and Pacman keyring validation fixes
 Run kernel build with bpftool compilation serialized at -j1 after LD vmlinux.
 Run kernel build with ld.lld explicitly limited to one thread for the LD vmlinux.o stage.
+Re-run after fixing the vmlinux.o linker patch hunk and checksum.
