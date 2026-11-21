@@ -33,3 +33,5 @@ Retry after Error 137 during Full LTO vmlinux.o link: serialize only vmlinux_o w
 
 Retry with corrected vmlinux_a archive target, -j1 vmlinux_o link, -j2 remaining build, and a verified 10 GB runner swap exposed to the build container.
 Retry after fixing the 10 GiB swap verification threshold; rebuild kernel packages.
+
+Retry original parallel kernel build with 6 GiB runner swap only.
