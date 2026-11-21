@@ -89,7 +89,13 @@ fi
 
 linkage_manifest="/usr/lib/modules/$(uname -r)/charcoal-linkage-diff"
 if [[ -r "$linkage_manifest" ]]; then
-  printf "\nValve baseline -> Charcoal linkage changes (all changed built-in/module selections):\n"
+  printf "\nLinkage and Clang Full LTO:\n"
+  printf '  Built-in features (=y) are linked into vmlinux, allowing Clang Full LTO\n'
+  printf '  to optimize across their code. Modules (=m) are linked separately, so\n'
+  printf '  they are outside that same whole-kernel link-time optimization pass.\n'
+  printf '  These are configuration differences from Valve; not every change is\n'
+  printf '  necessarily LTO-driven (some support boot or hardware functionality).\n'
+  printf "\nValve baseline -> Charcoal linkage changes (only changed built-in/module selections):\n"
   printf '  %-42s %-12s %-12s %-12s\n' 'Kernel option' 'Valve' 'Charcoal' 'Running'
   linkage_mismatch=0
   linkage_builtin=0
