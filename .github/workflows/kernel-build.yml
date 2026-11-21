@@ -53,7 +53,7 @@ jobs:
           echo "=== Runner memory and swap ==="
           free -h
           swapon --show --bytes
-          awk '$1 == "/swapfile" && $3 >= 10737418240 { ok=1 } END { exit !ok }' /proc/swaps
+          awk '$1 == "/swapfile" && $3 >= 10485760 { ok=1 } END { exit !ok }' /proc/swaps
           echo "=== Runner disk ==="
           df -h
           mkdir -p .cache/makepkg-sources .cache/ccache
