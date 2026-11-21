@@ -39,13 +39,13 @@ jobs:
           sudo apt-get clean
           docker system prune --all --force
 
-          # Replace the runner's pre-existing 3 GB swapfile with a 10 GB file.
+          # Replace the runner's pre-existing 3 GB swapfile with a 6 GB file.
           # Full LTO's vmlinux.o link is the memory-intensive stage.
           if swapon --noheadings --show=NAME | grep -Fxq /swapfile; then
             sudo swapoff /swapfile
           fi
           sudo rm -f /swapfile
-          sudo fallocate -l 10G /swapfile
+          sudo fallocate -l 6G /swapfile
           sudo chmod 600 /swapfile
           sudo mkswap /swapfile
           sudo swapon /swapfile
@@ -53,7 +53,7 @@ jobs:
           echo "=== Runner memory and swap ==="
           free -h
           swapon --show --bytes
-          awk '$1 == "/swapfile" && $3 >= 10485700 { ok=1 } END { exit !ok }' /proc/swaps
+          awk '$1 == "/swapfile" && $3 >= 6291400 { ok=1 } END { exit !ok }' /proc/swaps
           echo "=== Runner disk ==="
           df -h
           mkdir -p .cache/makepkg-sources .cache/ccache
