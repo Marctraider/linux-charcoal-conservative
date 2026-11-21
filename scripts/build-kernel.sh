@@ -63,7 +63,7 @@ echo "Starting LLVM kernel build with $JOBS jobs..."
   cd "$TREE"
   kbuild_flags=(LLVM=1 KCFLAGS="-march=znver2 -O2")
   echo "Building built-in archive with $JOBS jobs..."
-  make "${kbuild_flags[@]}" -j"$JOBS" vmlinux.a
+  make "${kbuild_flags[@]}" -j"$JOBS" vmlinux_a
   echo "Linking vmlinux.o with -j1..."
   make "${kbuild_flags[@]}" -j1 vmlinux_o
   echo "Resuming kernel build with $JOBS jobs..."
