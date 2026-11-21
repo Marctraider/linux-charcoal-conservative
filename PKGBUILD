@@ -217,7 +217,18 @@ prepare() {
 
 build() {
   cd $_srcname
-  make LLVM=1 KCFLAGS="-march=znver2 -O2" all
+
+  # Full Clang LTO makes the final built-in kernel link memory intensive.
+  # Build the built-in archive with normal parallelism, serialize vmlinux.o,
+  # then resume the remaining targets in parallel.
+  local kbuild_flags=(LLVM=1 KCFLAGS="-march=znver2 -O2")
+  echo "Building built-in archive with -j2..."
+  make "${kbuild_flags[@]}" -j2 vmlinux.a
+  echo "Linking vmlinux.o with -j1 to limit peak memory..."
+  make "${kbuild_flags[@]}" -j1 vmlinux_o
+  echo "Resuming kernel build with -j2..."
+  make "${kbuild_flags[@]}" -j2 all
+
   make LLVM=1 -C tools/bpf/bpftool vmlinux.h feature-clang-bpf-co-re=1
 }
 
