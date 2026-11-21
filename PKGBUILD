@@ -62,7 +62,6 @@ source=(
   config-charcoal
   "clang-polly.patch::file://$PWD/patches/clang-polly.patch"
   "vangogh_allow_higher_cpu_freq.patch::file://$PWD/patches/vangogh_allow_higher_cpu_freq.patch"
-  "zen2-cpu-optimizations.patch::file://$PWD/patches/zen2-cpu-optimizations.patch"
   "amd-pstate-epp-boost.service::file://$PWD/systemd/amd-pstate-epp-boost.service"
 )
 sha256sums=(
@@ -73,7 +72,6 @@ sha256sums=(
   '3ce95eca326d499d6fbe7cca5bc0f19733ea5bdca4c1c5a758bd08e9bb73bbfd'
   '71e5926efc30833a6fd756b9358529ac695fa688ae71cd74e31dd274ae1ecf05'
   '375c8e17daf9e60bc6c211dd73f0c67ec241bd40a83d812a08eeb42aab6128d9'
-  '12a94c58066d251c3c135f2d0e48238781f858c2d94474dd301f99f2cbbb552b'
   'd0fc67545dcf738fa69853c43ceab858bc2f87cf5910ae1755c7092679ee3562'
 )
 
@@ -109,11 +107,7 @@ prepare() {
   echo "-$pkgrel" > localversion.10-pkgrel
   echo "${pkgbase#linux}" > localversion.20-pkgname
 
-  echo "Applying Zen 2, Polly, and Van Gogh frequency patches..."
-  if ! grep -Fq -- '-march=znver2' arch/x86/Makefile; then
-    patch --dry-run -Np1 < ../zen2-cpu-optimizations.patch
-    patch -Np1 < ../zen2-cpu-optimizations.patch
-  fi
+  echo "Applying Polly and Van Gogh frequency patches..."
   if ! grep -Fq 'config POLLY_CLANG' init/Kconfig; then
     patch --dry-run -Np1 < ../clang-polly.patch
     patch -Np1 < ../clang-polly.patch
@@ -126,10 +120,6 @@ prepare() {
     patch --dry-run -Np1 < ../vangogh_allow_higher_cpu_freq.patch
     patch -Np1 < ../vangogh_allow_higher_cpu_freq.patch
   fi
-  grep -Fq -- '-march=znver2' arch/x86/Makefile || {
-    echo "error: Zen 2 Kbuild compiler flag is missing" >&2
-    exit 1
-  }
   grep -Fq 'LLVMPolly.so' Makefile || {
     echo "error: Clang Polly Kbuild plugin flag is missing" >&2
     exit 1
@@ -168,7 +158,7 @@ prepare() {
 
 build() {
   cd $_srcname
-  make LLVM=1 all
+  make LLVM=1 KCFLAGS="-march=znver2" all
   make LLVM=1 -C tools/bpf/bpftool vmlinux.h feature-clang-bpf-co-re=1
 }
 
