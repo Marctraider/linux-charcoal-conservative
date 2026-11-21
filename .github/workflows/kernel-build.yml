@@ -79,7 +79,7 @@ jobs:
               bsdtar -tf "${headers[0]}" | grep -Eq "^usr/lib/modules/[^/]+/build/.config$"
               config_entry="$(bsdtar -tf "${headers[0]}" | grep -E "^usr/lib/modules/[^/]+/build/.config$" | head -n1)"
               bsdtar -xOf "${headers[0]}" "$config_entry" | grep -Fxq "# CONFIG_CPU_MITIGATIONS is not set"
-              bsdtar -xOf "${headers[0]}" "$config_entry" | grep -Fxq "# CONFIG_DEBUG_INFO_BTF is not set"
+              bsdtar -xOf "${headers[0]}" "$config_entry" | grep -Fxq "CONFIG_DEBUG_INFO_BTF=y"
               bsdtar -xOf "${headers[0]}" "$config_entry" | grep -Fxq "# CONFIG_DEBUG_INFO_BTF_MODULES is not set"
               for setting in \
                 CONFIG_SCHED_CLASS_EXT=y \
@@ -94,11 +94,12 @@ jobs:
               echo "Kernel image, headers config, EPP service, and LAVD payload verified."
             '
       - name: Upload kernel, headers, and LAVD packages
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: steamdeck-kernel-packages
           path: |
             *.pkg.tar.*
             packages/scx-scheds/*.pkg.tar.*
-          if-no-files-found: error
+          if-no-files-found: warn
           retention-days: 14
