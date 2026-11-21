@@ -22,6 +22,9 @@ jobs:
           bash -n scripts/build-packages.sh
           bash -n install-charcoal.sh
           bash -n test-runtime.sh
+          grep -Fq 'CONFIG_LTO_CLANG_FULL' test-runtime.sh
+          grep -Fq 'CONFIG_POLLY_CLANG' test-runtime.sh
+          grep -Fq 'cflags=-march=znver2' test-runtime.sh
           bash -n packages/scx-scheds/PKGBUILD
       - name: Check requested config and package policy
         run: |
