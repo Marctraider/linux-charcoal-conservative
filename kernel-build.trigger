@@ -41,3 +41,4 @@ Retry full kernel build after correcting SHA-256 implementation and source check
 Rebuild with sched_ext-compatible kernel BTF enabled, BTF modules disabled, and single-threaded ThinLTO linker; synchronize static checks.
 
 Rebuild after fixing config-charcoal SHA-256 and generating/installing the Valve-to-Charcoal linkage manifest; retain single-threaded ThinLTO.
+Packaging fix: preserve UPX LAVD binary and upload outputs on failure
