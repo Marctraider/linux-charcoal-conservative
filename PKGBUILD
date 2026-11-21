@@ -223,7 +223,7 @@ build() {
   # then resume the remaining targets in parallel.
   local kbuild_flags=(LLVM=1 KCFLAGS="-march=znver2 -O2")
   echo "Building built-in archive with -j2..."
-  make "${kbuild_flags[@]}" -j2 vmlinux.a
+  make "${kbuild_flags[@]}" -j2 vmlinux_a
   echo "Linking vmlinux.o with -j1 to limit peak memory..."
   make "${kbuild_flags[@]}" -j1 vmlinux_o
   echo "Resuming kernel build with -j2..."
