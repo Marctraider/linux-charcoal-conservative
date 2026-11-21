@@ -175,7 +175,7 @@ prepare() {
 
 build() {
   cd $_srcname
-  make LLVM=1 KCFLAGS="-march=znver2" all
+  make LLVM=1 KCFLAGS="-march=znver2 -O2" all
   make LLVM=1 -j1 -C tools/bpf/bpftool vmlinux.h feature-clang-bpf-co-re=1
 }
 
