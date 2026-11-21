@@ -60,6 +60,9 @@ cleanup() {
     else
       echo "No cached previous packages were found; manual recovery may be required." >&2
     fi
+    if [[ -z "$current_scx" ]]; then
+      pacman -R --noconfirm "$SCX_NAME" >/dev/null 2>&1 || true
+    fi
     if (( SCX_WAS_ENABLED )); then systemctl enable scx.service || true; fi
     if (( SCX_WAS_ACTIVE )); then systemctl start scx.service || true; fi
     mkinitcpio -P || echo "WARNING: initramfs regeneration during rollback failed" >&2
