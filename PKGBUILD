@@ -140,7 +140,13 @@ prepare() {
       exit 1
     }
   }
-  require_config 'CONFIG_CPU_MITIGATIONS=n'
+  require_config_not_set() {
+    grep -Fqx "# $1 is not set" .config || {
+      echo "error: required config is not disabled: $1" >&2
+      exit 1
+    }
+  }
+  require_config_not_set 'CONFIG_CPU_MITIGATIONS'
   require_config 'CONFIG_SCHED_CLASS_EXT=y'
   require_config 'CONFIG_X86_AMD_PSTATE=y'
   require_config 'CONFIG_LTO_CLANG_FULL=y'
