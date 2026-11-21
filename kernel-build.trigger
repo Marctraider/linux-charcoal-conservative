@@ -28,10 +28,3 @@ Run full kernel, headers, and LAVD package build after independently verifying e
 Build after Kconfig anchor correction, source checksums rechecked.
 Rebuild after re-anchoring Van Gogh 4200 MHz patch and verifying its SHA-256 against PKGBUILD.
 Build after Kconfig and Pacman keyring validation fixes
-
-Retry after Error 137 during Full LTO vmlinux.o link: serialize only vmlinux_o with -j1, retain -j2 elsewhere, and configure/log 6 GB runner swap.
-
-Retry with corrected vmlinux_a archive target, -j1 vmlinux_o link, -j2 remaining build, and a verified 10 GB runner swap exposed to the build container.
-Retry after fixing the 10 GiB swap verification threshold; rebuild kernel packages.
-
-Retry original parallel kernel build with 6 GiB runner swap only.
