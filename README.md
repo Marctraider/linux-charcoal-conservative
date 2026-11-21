@@ -49,4 +49,4 @@ sudo bash install-charcoal.sh \
   --scx /path/to/scx-scheds.pkg.tar.zst
 ```
 
-Run `sudo bash install-charcoal.sh --check-only` for a Deck and boot-state preflight without installing packages. Add all three package paths with `--check-only` to validate their identities and matching kernel/header metadata too. The installer requires SteamOS 3.10 and an existing Neptune preset, kernel image, and initramfs.
+Run `sudo bash install-charcoal.sh --check-only` for a Deck and boot-state preflight without installing packages. Add all three package paths with `--check-only` to validate their identities and matching kernel/header metadata too. The installer requires SteamOS 3.10 and an existing Neptune preset, kernel image, and initramfs. After booting the new kernel, run `bash test-runtime.sh` to check the live kernel config, EPP boost service/parameter, 4200 MHz CPU policy maximum, and LAVD scheduler/mode.
