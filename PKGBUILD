@@ -110,12 +110,12 @@ prepare() {
   echo "${pkgbase#linux}" > localversion.20-pkgname
 
   echo "Applying single-threaded vmlinux.o linker patch..."
-  if ! grep -Fq '$(LD) ${KBUILD_LDFLAGS} --threads=1 -r -o $@' scripts/Makefile.vmlinux_o; then
+  if ! grep -Fq '$(LD) ${KBUILD_LDFLAGS} --threads=1 --thinlto-jobs=1 -r -o $@' scripts/Makefile.vmlinux_o; then
     patch --dry-run -Np1 < ../serialize-vmlinux-o-link.patch
     patch -Np1 < ../serialize-vmlinux-o-link.patch
   fi
-  grep -Fq '$(LD) ${KBUILD_LDFLAGS} --threads=1 -r -o $@' scripts/Makefile.vmlinux_o || {
-    echo "error: vmlinux.o linker is not configured for --threads=1" >&2
+  grep -Fq '$(LD) ${KBUILD_LDFLAGS} --threads=1 --thinlto-jobs=1 -r -o $@' scripts/Makefile.vmlinux_o || {
+    echo "error: vmlinux.o linker is not configured for single-threaded ThinLTO" >&2
     exit 1
   }
 
@@ -163,7 +163,6 @@ prepare() {
   require_config 'CONFIG_X86_AMD_PSTATE=y'
   require_config 'CONFIG_LTO_CLANG_FULL=y'
   require_config 'CONFIG_POLLY_CLANG=y'
-  require_config 'CONFIG_DEBUG_INFO_BTF=y'
   require_config 'CONFIG_BPF_SYSCALL=y'
   require_config 'CONFIG_BPF_JIT=y'
   require_config 'CONFIG_CGROUPS=y'
