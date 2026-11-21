@@ -170,32 +170,6 @@ read -r -p "Continue? [y/N] " answer
 steamos-readonly disable
 READONLY_DISABLED=1
 TRANSACTION_STARTED=1
-rollback() {
-  local rc=$?
-  if (( rc != 0 && TRANSACTION_STARTED )); then
-    echo "Installation failed; attempting package rollback..." >&2
-    if [[ -n "$ROLLBACK_KERNEL" ]]; then
-      local args=("$ROLLBACK_KERNEL")
-      [[ -n "$ROLLBACK_HEADERS" ]] && args+=("$ROLLBACK_HEADERS")
-      pacman -U --noconfirm --overwrite='*' "${args[@]}" || echo "WARNING: package rollback failed" >&2
-      mkinitcpio -P || echo "WARNING: initramfs rollback regeneration failed" >&2
-      update_bootloader || echo "WARNING: GRUB rollback update failed" >&2
-    else
-      echo "No previous cached kernel package exists; manual recovery may be required." >&2
-    fi
-  fi
-  return "$rc"
-}
-update_bootloader() {
-  if command -v steamos-update-grub >/dev/null; then
-    steamos-update-grub
-  elif command -v grub-mkconfig >/dev/null; then
-    grub-mkconfig -o /boot/grub/grub.cfg
-  else
-    update-grub
-  fi
-}
-trap rollback ERR
 
 log "Installing kernel and matching headers as one pacman transaction"
 pacman -U --noconfirm "$KERNEL_PKG" "$HEADERS_PKG"
@@ -208,6 +182,5 @@ update_bootloader
 [[ -f "$PRESET" ]] || die "mkinitcpio preset missing after installation"
 pacman -Q "$KERNEL_NAME" "$HEADERS_NAME" || die "installed package verification failed"
 TRANSACTION_STARTED=0
-trap - ERR
 log "Installation completed. Reboot manually when ready."
 echo "Charcoal Conservative is installed. Reboot manually when convenient."
