@@ -79,6 +79,8 @@ jobs:
               bsdtar -tf "${headers[0]}" | grep -Eq "^usr/lib/modules/[^/]+/build/.config$"
               config_entry="$(bsdtar -tf "${headers[0]}" | grep -E "^usr/lib/modules/[^/]+/build/.config$" | head -n1)"
               bsdtar -xOf "${headers[0]}" "$config_entry" | grep -Fxq "# CONFIG_CPU_MITIGATIONS is not set"
+              bsdtar -xOf "${headers[0]}" "$config_entry" | grep -Fxq "# CONFIG_DEBUG_INFO_BTF is not set"
+              bsdtar -xOf "${headers[0]}" "$config_entry" | grep -Fxq "# CONFIG_DEBUG_INFO_BTF_MODULES is not set"
               for setting in \
                 CONFIG_SCHED_CLASS_EXT=y \
                 CONFIG_LTO_CLANG_FULL=y \
