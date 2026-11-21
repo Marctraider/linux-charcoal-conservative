@@ -39,18 +39,21 @@ jobs:
           sudo apt-get clean
           docker system prune --all --force
 
-          # Full LTO's vmlinux.o link has a high peak-memory requirement.
-          # Add explicit host swap; Docker shares the runner's memory/swap.
-          if ! swapon --noheadings --show=NAME | grep -Fxq /swapfile; then
-            sudo fallocate -l 6G /swapfile
-            sudo chmod 600 /swapfile
-            sudo mkswap /swapfile
-            sudo swapon /swapfile
+          # Replace the runner's pre-existing 3 GB swapfile with a 10 GB file.
+          # Full LTO's vmlinux.o link is the memory-intensive stage.
+          if swapon --noheadings --show=NAME | grep -Fxq /swapfile; then
+            sudo swapoff /swapfile
           fi
+          sudo rm -f /swapfile
+          sudo fallocate -l 10G /swapfile
+          sudo chmod 600 /swapfile
+          sudo mkswap /swapfile
+          sudo swapon /swapfile
 
           echo "=== Runner memory and swap ==="
           free -h
-          swapon --show
+          swapon --show --bytes
+          awk '$1 == "/swapfile" && $3 >= 10737418240 { ok=1 } END { exit !ok }' /proc/swaps
           echo "=== Runner disk ==="
           df -h
           mkdir -p .cache/makepkg-sources .cache/ccache
@@ -83,8 +86,9 @@ jobs:
               chown -R builder:builder /work
               echo "=== Build container memory/swap limits ==="
               free -h
-              cat /proc/meminfo | grep -E "^(MemTotal|MemAvailable|SwapTotal|SwapFree):"
-              for limit in /sys/fs/cgroup/memory.max /sys/fs/cgroup/memory.swap.max; do
+              grep -E "^(MemTotal|MemAvailable|SwapTotal|SwapFree):" /proc/meminfo
+              swapon --show --bytes || true
+              for limit in /sys/fs/cgroup/memory.max /sys/fs/cgroup/memory.swap.max /sys/fs/cgroup/memory.current /sys/fs/cgroup/memory.swap.current; do
                 if [[ -r "$limit" ]]; then printf "%s=" "$limit"; cat "$limit"; fi
               done
               runuser -u builder -- env MAKEFLAGS="$MAKEFLAGS" CCACHE_DIR="$CCACHE_DIR" CC="$CC" CXX="$CXX" bash scripts/build-packages.sh
