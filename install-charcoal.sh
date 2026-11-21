@@ -131,7 +131,7 @@ installed_version() {
 find_cached_package() {
   local name="$1" version="$2" f
   [[ -n "$version" ]] || return 0
-  for f in /var/cache/pacman/pkg/"$name"-"$version"-"*.pkg.tar.*; do
+  for f in /var/cache/pacman/pkg/"$name"-"$version"-*.pkg.tar.*; do
     [[ -f "$f" ]] && { printf '%s\n' "$f"; return 0; }
   done
   return 0
