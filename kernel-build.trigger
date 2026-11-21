@@ -21,3 +21,4 @@ Re-run after correcting Polly unified-diff hunk length and checksum.
 Rebuild after correcting clang-polly.patch SHA-256.
 Clear the stale cached zero-byte clang-polly.patch before makepkg source validation.
 Start kernel build after verified clang-polly.patch checksum correction (2026-11-21).
+Build authorized after Polly patch hunk-count and checksum fix.
