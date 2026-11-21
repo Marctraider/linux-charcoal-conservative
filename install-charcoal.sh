@@ -219,9 +219,14 @@ SCX_SCHEDULER=scx_lavd
 SCX_FLAGS=--performance
 SCXCONF
 systemctl daemon-reload
-systemctl enable --now scx.service
-systemctl is-active --quiet scx.service || die "scx.service did not start"
-pgrep -x scx_lavd >/dev/null || die "scx_lavd process is not running"
+systemctl enable scx.service
+if [[ -d /sys/kernel/sched_ext ]]; then
+  systemctl start scx.service
+  systemctl is-active --quiet scx.service || die "scx.service did not start on the running sched_ext-capable kernel"
+  pgrep -x scx_lavd >/dev/null || die "scx_lavd process is not running"
+else
+  log "LAVD is enabled for boot; activation is deferred until the new sched_ext kernel is running."
+fi
 log "Regenerating initramfs presets"
 mkinitcpio -P
 log "Updating GRUB"
