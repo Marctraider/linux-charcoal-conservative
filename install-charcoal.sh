@@ -55,8 +55,8 @@ cleanup() {
     [[ -n "$ROLLBACK_KERNEL" ]] && restore+=("$ROLLBACK_KERNEL")
     [[ -n "$ROLLBACK_HEADERS" ]] && restore+=("$ROLLBACK_HEADERS")
     [[ -n "$ROLLBACK_SCX" ]] && restore+=("$ROLLBACK_SCX")
-    if (("\${#restore[@]}")); then
-      pacman -U --noconfirm --overwrite='*' "\${restore[@]}" || echo "WARNING: package rollback failed" >&2
+    if (("${#restore[@]}")); then
+      pacman -U --noconfirm --overwrite='*' "${restore[@]}" || echo "WARNING: package rollback failed" >&2
     else
       echo "No cached previous packages were found; manual recovery may be required." >&2
     fi
@@ -107,8 +107,8 @@ command -v steamos-readonly >/dev/null || die "SteamOS read-only utility not fou
 [[ -r /etc/os-release ]] || die "cannot read /etc/os-release"
 # shellcheck disable=SC1091
 source /etc/os-release
-[[ "\${ID:-}" == "steamos" ]] || die "SteamOS required (detected ID=\${ID:-unknown})"
-[[ "\${VERSION_ID:-}" == 3.10* ]] || die "SteamOS 3.10 required (detected \${VERSION_ID:-unknown})"
+[[ "${ID:-}" == "steamos" ]] || die "SteamOS required (detected ID=${ID:-unknown})"
+[[ "${VERSION_ID:-}" == 3.10* ]] || die "SteamOS 3.10 required (detected ${VERSION_ID:-unknown})"
 [[ "$(uname -m)" == x86_64 ]] || die "Steam Deck x86_64 userspace required"
 
 for cmd in bsdtar mkinitcpio systemctl; do
@@ -154,8 +154,8 @@ if [[ -n "$KERNEL_PKG" || -n "$HEADERS_PKG" || -n "$SCX_PKG" ]]; then
   pkgbase_path="$(grep -E '^usr/lib/modules/[^/]+/pkgbase$' <<<"$kernel_listing" | head -n1)"
   pkgbase_value="$(bsdtar -xOf "$KERNEL_PKG" "$pkgbase_path" | tr -d '\r\n')"
   [[ "$pkgbase_value" == "$PKGBASE" ]] || die "kernel pkgbase is '$pkgbase_value', expected '$PKGBASE'"
-  module_version="\${pkgbase_path#usr/lib/modules/}"
-  module_version="\${module_version%/pkgbase}"
+  module_version="${pkgbase_path#usr/lib/modules/}"
+  module_version="${module_version%/pkgbase}"
   headers_listing="$(bsdtar -tf "$HEADERS_PKG")"
   grep -Eq "^usr/lib/modules/$module_version(/|$)" <<<"$headers_listing" || die "headers package does not contain module tree $module_version"
 
@@ -184,8 +184,8 @@ if [[ -n "$current_scx" ]]; then
   [[ -n "$ROLLBACK_SCX" ]] || die "no cached previous $SCX_NAME package; refusing upgrade without rollback"
 fi
 
-log "SteamOS \${VERSION_ID}; kernel \${kernel_version:-not supplied}; headers \${headers_version:-not supplied}; LAVD \${scx_version:-not supplied}"
-log "Installed kernel: \${current_kernel:-none}; headers: \${current_headers:-none}; scx-scheds: \${current_scx:-none}"
+log "SteamOS ${VERSION_ID}; kernel ${kernel_version:-not supplied}; headers ${headers_version:-not supplied}; LAVD ${scx_version:-not supplied}"
+log "Installed kernel: ${current_kernel:-none}; headers: ${current_headers:-none}; scx-scheds: ${current_scx:-none}"
 if (( CHECK_ONLY )); then
   echo "Check-only passed. No packages or boot configuration were changed."
   exit 0
