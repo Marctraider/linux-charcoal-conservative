@@ -25,3 +25,4 @@ Build authorized after Polly patch hunk-count and checksum fix.
 Retry full kernel package build after correcting both Polly patch hunk counts and verifying the updated checksum against Valve 7.3.1-valve3.
 Retry kernel build with corrected Polly Kconfig hunk start line and matching SHA-256 checksum.
 Run full kernel, headers, and LAVD package build after independently verifying every patch SHA-256 against PKGBUILD.
+Build after Kconfig anchor correction, source checksums rechecked.
